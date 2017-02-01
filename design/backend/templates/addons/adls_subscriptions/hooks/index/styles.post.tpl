@@ -1,0 +1,1 @@
+{style src="addons/adls_subscriptions/backend.less"}

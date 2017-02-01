@@ -1,0 +1,17 @@
+msgid ""
+msgstr "Project-Id-Version: tygh"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: English\n"
+"Language: en_US"
+
+msgctxt "Addons::name::adls_subscriptions"
+msgid "ADLS Subscriptions"
+msgstr "ADLS Subscriptions"
+
+msgctxt "Addons::description::adls_subscriptions"
+msgid "Adds subscriptions feature to CS-Cart"
+msgstr "Adds subscriptions feature to CS-Cart"
+
+msgctxt "Languages::adls_subscriptions.sample_lang_var"
+msgid "Sample translation entry for adls_subscriptions"
+msgstr "Sample translation entry for adls_subscriptions"

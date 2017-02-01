@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<addon scheme="3.0">
+    <id>adls_subscriptions</id>
+    <version>0.0.1</version>
+    <name>ADLS Subscriptions</name>
+    <description>Adds subscriptions feature to CS-Cart</description>
+    <priority>1010112</priority>
+    <position>0</position>
+    <status>active</status>
+    <has_icon>Y</has_icon>
+    <default_language>en</default_language>
+
+    <queries>
+        <item for="install">ALTER TABLE `?:products` ADD `adls_subscription_id` smallint(2);</item>
+        <item for="___uninstall">ALTER TABLE `?:products` DROP `adls_subscription_id`;</item>
+
+        <item for="install">
+            CREATE TABLE `?:adlss_plans` (
+            `plan_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `name`  varchar(255) NOT NULL  NOT NULL ,
+            `cost`  mediumint(8) UNSIGNED,
+            `cycle`  char(1) CHARACTER SET utf8 COLLATE utf8_general_ci,
+            `created_at`  datetime NOT NULL ,
+            `updated_at`  datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP ,
+            PRIMARY KEY (`subscription_id`)
+            )
+        </item>
+
+        <item for="install">
+            CREATE TABLE `?:adlss_subscriptions` (
+            `subscription_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `plan_id`  mediumint(8) NOT NULL ,
+            `order_id`  mediumint(8) NOT NULL ,
+            `item_id`  mediumint(8) NOT NULL ,
+            `product_id`  mediumint(8) NOT NULL ,
+            `user_id`  mediumint(8) UNSIGNED NOT NULL ,
+            `type`  char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+            `start_date`  datetime NOT NULL ,
+            `end_date`  datetime NULL ,
+            `never_expires`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
+            `created_at`  datetime NOT NULL ,
+            `updated_at`  datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP ,
+            PRIMARY KEY (`subscription_id`)
+            )
+        </item>
+    </queries>
+
+    <authors>
+        <author>
+            <name>HELOstore</name>
+            <email>support@helostore.com</email>
+            <url>https://helostore.com/</url>
+        </author>
+    </authors>
+</addon>
