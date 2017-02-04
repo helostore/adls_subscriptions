@@ -15,8 +15,34 @@ namespace HeloStore\ADLS\Subscription;
 
 use Exception;
 
-class CycleManager extends Singleton
+class CycleManager extends Manager
 {
 
+    /**
+     * https://stripe.com/docs/subscriptions/billing-cycle
+     *
+     *
+     *
+     * @param Subscription $subscription
+     */
+    public function elapse(Subscription $subscription)
+    {
 
+        $planId = $subscription->getPlanId();
+        $planManager = PlanManager::instance();
+        $plan = $planManager->findOneById($planId);
+
+
+//        $nextDate = $subscription
+
+//        $data = $plan->toArray();
+
+
+//        var_dump($subscription);
+//        var_dump($plan);
+//        var_dump($data);
+
+
+
+    }
 }

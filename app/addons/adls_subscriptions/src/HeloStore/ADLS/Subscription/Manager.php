@@ -14,14 +14,7 @@
 
 namespace HeloStore\ADLS\Subscription;
 
-use Tygh\CompanySingleton;
-
-class Singleton extends CompanySingleton {
-
-    /**
-     * @var array
-     */
-	protected $errors = array();
+class Manager extends Singleton {
 
     /**
      * @var EntityRepository
@@ -29,30 +22,22 @@ class Singleton extends CompanySingleton {
 	protected $repository;
 
 	/**
-	 * @param int $company_id
-	 * @param array $params
+	 * @return EntityRepository
+	 */
+	public function getRepository()
+	{
+		return $this->repository;
+	}
+
+	/**
+	 * @param EntityRepository $repository
 	 *
-	 * @return static
+	 * @return $this
 	 */
-	public static function instance($company_id = 0, $params = array())
+	public function setRepository($repository)
 	{
-		return parent::instance($company_id, $params);
-	}
+		$this->repository = $repository;
 
-	/**
-	 * @return array
-	 */
-	public function getErrors()
-	{
-		return $this->errors;
+		return $this;
 	}
-
-	/**
-	 * @param $message
-	 */
-	public function addError($message)
-	{
-		$this->errors[] = $message;
-	}
-
-} 
+}

@@ -13,31 +13,11 @@
  */
 namespace HeloStore\ADLS\Subscription;
 
-use Exception;
 
-class PlanManager extends Singleton
+class PlanManager extends Manager
 {
-	/**
-	 * Create new Plan
-	 *
-	 * @param $name
-	 *
-	 * @return bool|int
-	 * 
-	 * @throws Exception
-	 */
-	public function create($name)
+	public function __construct()
 	{
-		$date = new \DateTime();
-
-		$data = array(
-			'name' => $name,
-			'created_at' => $date->format('Y-m-d H:i:s'),
-			'update_at' => $date->format('Y-m-d H:i:s'),
-		);
-
-		$id = db_query('INSERT INTO ?:adlss_plans ?e', $data);
-
-		return $id;
+		$this->setRepository(PlanRepository::instance());
 	}
 }

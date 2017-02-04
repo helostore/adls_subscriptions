@@ -15,15 +15,9 @@
 namespace HeloStore\ADLS\Subscription;
 
 
-class Plan extends Entity
+class Subscribable extends Entity
 {
-	const STATUS_ACTIVE = 'A';
-	const STATUS_DISABLED = 'D';
-	const STATUS_INACTIVE = 'I';
-
-	const CYCLE_YEARLY = '12';
-	const CYCLE_MONTHLY = '1';
-	const CYCLE_PERPETUAL = '-1';
+	const OBJECT_TYPE_PRODUCT_OPTION = 'product_option';
 
     /**
      * @var array
@@ -38,14 +32,19 @@ class Plan extends Entity
 	protected $id;
 
 	/**
-	 * @var string
+	 * @var integer
 	 */
-	protected $name;
+	protected $planId;
 
 	/**
 	 * @var string
 	 */
-	protected $cycle;
+	protected $objectType;
+
+	/**
+	 * @var integer
+	 */
+	protected $objectId;
 
 	/**
 	 * @var \DateTime
@@ -66,21 +65,21 @@ class Plan extends Entity
 	}
 
 	/**
-	 * @return string
+	 * @return int
 	 */
-	public function getName()
+	public function getPlanId()
 	{
-		return $this->name;
+		return $this->planId;
 	}
 
 	/**
-	 * @param string $name
+	 * @param int $planId
 	 *
 	 * @return $this
 	 */
-	public function setName($name)
+	public function setPlanId($planId)
 	{
-		$this->name = $name;
+		$this->planId = $planId;
 
 		return $this;
 	}
@@ -88,19 +87,39 @@ class Plan extends Entity
 	/**
 	 * @return string
 	 */
-	public function getCycle()
+	public function getObjectType()
 	{
-		return $this->cycle;
+		return $this->objectType;
 	}
 
 	/**
-	 * @param string $cycle
+	 * @param string $objectType
 	 *
 	 * @return $this
 	 */
-	public function setCycle($cycle)
+	public function setObjectType($objectType)
 	{
-		$this->cycle = $cycle;
+		$this->objectType = $objectType;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getObjectId()
+	{
+		return $this->objectId;
+	}
+
+	/**
+	 * @param int $objectId
+	 *
+	 * @return $this
+	 */
+	public function setObjectId($objectId)
+	{
+		$this->objectId = $objectId;
 
 		return $this;
 	}

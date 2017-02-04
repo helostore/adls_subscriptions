@@ -15,40 +15,171 @@ namespace HeloStore\ADLS\Subscription;
 
 use Exception;
 
-class SubscriptionManager extends Singleton
+class SubscriptionManager extends Manager
 {
+    public function __construct()
+    {
+        $this->setRepository(SubscriptionRepository::instance());
+    }
+
 	/**
-	 * Create new subscription
-	 *
-	 * @param integer $productId
-	 * @param integer $userId
-	 * @param integer $planId
-	 *
-	 * @return bool|int
-	 * 
-	 * @throws Exception
+	 * Hooks
 	 */
-	public function create($userId, $productId, $planId)
+
+    /**
+     * @param $statusTo
+     * @param $statusFrom
+     * @param $orderInfo
+     * @param $forceNotification
+     * @param $orderStatuses
+     * @param $placeOrder
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+	public function onChangeOrderStatus($statusTo, $statusFrom, $orderInfo, $forceNotification, $orderStatuses, $placeOrder)
 	{
-		$date = new \DateTime();
-		$startDate = clone $date;
-		$endDate = clone $date;
+        $paidStatuses = array('P');
+        $isPaidStatus = in_array($statusTo, $paidStatuses);
 
-		$neverExpires = 0;
+        $subscriptionRepository = $this->getRepository();
+        $subscribableManager = SubscribableManager::instance();
+        $subscribableRepository = SubscribableRepository::instance();
+//        $planManager = PlanManager::instance();
+        $planRepository = PlanRepository::instance();
+        $orderId = $orderInfo['order_id'];
+        $userId = $orderInfo['user_id'];
 
-		$data = array(
-			'product_id' => $productId,
-			'user_id' => $userId,
-			'plan_id' => $planId,
-			'start_date' => $startDate->format('Y-m-d H:i:s'),
-			'end_date' => $endDate->format('Y-m-d H:i:s'),
-			'never_expires' => $neverExpires,
-			'created_at' => $date->format('Y-m-d H:i:s'),
-			'update_at' => $date->format('Y-m-d H:i:s'),
-		);
 
-		$subscriptionId = db_query('INSERT INTO ?:adls_subscriptions ?e', $data);
+        foreach ($orderInfo['products'] as $product) {
+            $productId = $product['product_id'];
+            $itemId = $product['item_id'];
 
-		return $subscriptionId;
+            if (empty($product['product_options'])) {
+                continue;
+            }
+
+            foreach ($product['product_options'] as $option) {
+                $productOption = fn_get_product_option_data($option['option_id'], $option['product_id']);
+
+                if (!$subscribableManager->isSubscribable($productOption)) {
+                    continue;
+                }
+                $objectId = $option['option_id'];
+                $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
+
+                $subscribableLink = $subscribableRepository->findOneByObject($objectId, $objectType);
+                if (empty($subscribableLink)) {
+                    throw new Exception('Unable to fetch subscribable link for option');
+                }
+
+                $plan = $planRepository->findOneById($subscribableLink['planId']);
+                if (!$plan instanceof Plan) {
+                    throw new Exception('Unable to fetch plan from subscribable link');
+                }
+
+                $planId = $plan->getId();
+
+
+                if (!empty($orderInfo['subscription'])) {
+                    $subscription = $orderInfo['subscription'];
+                } else {
+                    $subscription = $subscriptionRepository->findOne(array(
+                        'userId' => $userId,
+                        'planId' => $planId,
+                        'orderId' => $orderId,
+                        'itemId' => $itemId,
+                        'productId' => $productId,
+                    ));
+                }
+
+
+
+                if ($isPaidStatus) {
+                    if (empty($subscription)) {
+                        $subscriptionId = $subscriptionRepository->create($userId, $planId, $orderId, $itemId, $productId);
+                        if (empty($subscriptionId)) {
+                            throw new Exception('Unable to create subscription for order ' . $orderId);
+                        }
+                        $subscription = $subscriptionRepository->findOneById($subscriptionId);
+                    } else {
+
+                    }
+                    $subscription->activate();
+
+                } else {
+                    $subscription->disable();
+                }
+
+                if (!$subscriptionRepository->update($subscription)) {
+                    throw new Exception('Failed updating subscription');
+                }
+
+            }
+
+
+            $notificationState = (AREA == 'A' ? 'I' : 'K');
+            if ($isPaidStatus) {
+
+
+            } else {
+                if (!defined('ORDER_MANAGEMENT')) {
+
+
+                }
+            }
+
+        }
+
+        return true;
 	}
+
+    public function onGetOrderInfo(&$order, $additionalData)
+    {
+        $subscribableManager = SubscribableManager::instance();
+        $subscribableRepository = SubscribableRepository::instance();
+        $userId = $order['user_id'];
+        $orderId = $order['order_id'];
+
+        foreach ($order['products'] as &$product) {
+            $productId = $product['product_id'];
+            $itemId = $product['item_id'];
+
+            if (empty($product['product_options'])) {
+                continue;
+            }
+
+            foreach ($product['product_options'] as &$option) {
+
+                $productOption = fn_get_product_option_data($option['option_id'], $option['product_id']);
+
+                if (!$subscribableManager->isSubscribable($productOption)) {
+                    continue;
+                }
+
+                $subscribableLink = $subscribableRepository->findOneByObject($option['option_id'], Subscribable::OBJECT_TYPE_PRODUCT_OPTION);
+                if (empty($subscribableLink)) {
+                    throw new Exception('Unable to fetch subscribable link for option');
+                }
+                $planId = $subscribableLink['planId'];
+
+                $option['subscription'] = $this->getRepository()->findOne(array(
+                    'userId' => $userId,
+                    'planId' => $planId,
+                    'orderId' => $orderId,
+                    'itemId' => $itemId,
+                    'productId' => $productId,
+                ));
+
+            }
+            unset($option);
+        }
+        unset($product);
+    }
+
+
+	/**
+	 * Methods
+	 */
 }

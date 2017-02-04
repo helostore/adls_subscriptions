@@ -18,11 +18,10 @@
             CREATE TABLE `?:adlss_plans` (
             `plan_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `name`  varchar(255) NOT NULL  NOT NULL ,
-            `cost`  mediumint(8) UNSIGNED,
             `cycle`  char(1) CHARACTER SET utf8 COLLATE utf8_general_ci,
             `created_at`  datetime NOT NULL ,
-            `updated_at`  datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP ,
-            PRIMARY KEY (`subscription_id`)
+            `updated_at`  datetime ON UPDATE CURRENT_TIMESTAMP ,
+            PRIMARY KEY (`plan_id`)
             )
         </item>
 
@@ -30,16 +29,15 @@
             CREATE TABLE `?:adlss_subscriptions` (
             `subscription_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `plan_id`  mediumint(8) NOT NULL ,
+            `user_id`  mediumint(8) UNSIGNED NOT NULL ,
             `order_id`  mediumint(8) NOT NULL ,
             `item_id`  mediumint(8) NOT NULL ,
             `product_id`  mediumint(8) NOT NULL ,
-            `user_id`  mediumint(8) UNSIGNED NOT NULL ,
-            `type`  char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `start_date`  datetime NOT NULL ,
             `end_date`  datetime NULL ,
             `never_expires`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
             `created_at`  datetime NOT NULL ,
-            `updated_at`  datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP ,
+            `updated_at`  datetime ON UPDATE CURRENT_TIMESTAMP ,
             PRIMARY KEY (`subscription_id`)
             )
         </item>

@@ -17,3 +17,11 @@ if (!defined('BOOTSTRAP')) { die('Access denied'); }
 require_once __DIR__ . '/vendor/autoload.php';
 
 DEFINE('ADLS_SUBSCRIPTIONS_ADDON_PATH', __DIR__);
+
+
+fn_register_hooks(
+    'get_product_option_data_pre'
+    , 'get_product_option_data_post'
+    , 'change_order_status'
+    , 'get_order_info'
+);
