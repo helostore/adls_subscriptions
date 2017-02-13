@@ -12,34 +12,48 @@
 
     <queries>
         <item for="install">ALTER TABLE `?:products` ADD `adls_subscription_id` smallint(2);</item>
-        <item for="___uninstall">ALTER TABLE `?:products` DROP `adls_subscription_id`;</item>
 
         <item for="install">
             CREATE TABLE `?:adlss_plans` (
-            `plan_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
-            `name`  varchar(255) NOT NULL  NOT NULL ,
-            `cycle`  char(1) CHARACTER SET utf8 COLLATE utf8_general_ci,
-            `created_at`  datetime NOT NULL ,
-            `updated_at`  datetime ON UPDATE CURRENT_TIMESTAMP ,
-            PRIMARY KEY (`plan_id`)
-            )
+            `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) NOT NULL,
+            `cycle` tinyint(4) NOT NULL,
+            `createdAt` datetime NOT NULL,
+            `updatedAt` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+        </item>
+
+        <item for="install">
+            CREATE TABLE `?:adlss_subscribables` (
+            `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+            `planId` tinyint(4) DEFAULT NULL,
+            `objectType` varchar(16) NOT NULL,
+            `objectId` mediumint(8) unsigned NOT NULL,
+            `createdAt` datetime NOT NULL,
+            `updatedAt` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
         </item>
 
         <item for="install">
             CREATE TABLE `?:adlss_subscriptions` (
-            `subscription_id`  mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT ,
-            `plan_id`  mediumint(8) NOT NULL ,
-            `user_id`  mediumint(8) UNSIGNED NOT NULL ,
-            `order_id`  mediumint(8) NOT NULL ,
-            `item_id`  mediumint(8) NOT NULL ,
-            `product_id`  mediumint(8) NOT NULL ,
-            `start_date`  datetime NOT NULL ,
-            `end_date`  datetime NULL ,
-            `never_expires`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
-            `created_at`  datetime NOT NULL ,
-            `updated_at`  datetime ON UPDATE CURRENT_TIMESTAMP ,
-            PRIMARY KEY (`subscription_id`)
-            )
+            `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+            `userId` mediumint(8) unsigned NOT NULL,
+            `planId` mediumint(8) NOT NULL,
+            `orderId` mediumint(8) NOT NULL,
+            `itemId` varchar(12) NOT NULL,
+            `productId` mediumint(8) NOT NULL,
+            `status` char(1) NOT NULL,
+            `startDate` datetime DEFAULT NULL,
+            `endDate` datetime DEFAULT NULL,
+            `neverExpires` tinyint(1) unsigned NOT NULL DEFAULT '0',
+            `paidCycles` tinyint(4) NOT NULL DEFAULT '0',
+            `elapsedCycles` tinyint(4) unsigned NOT NULL DEFAULT '0',
+            `createdAt` datetime NOT NULL,
+            `updatedAt` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
         </item>
     </queries>
 

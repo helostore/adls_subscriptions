@@ -76,7 +76,8 @@ class Entity
                 'updatedAt',
                 'createdAt',
                 'date'))) {
-                $v = \DateTime::createFromFormat('Y-m-d H:i:s', $v);
+
+                $v = (!empty($v) ? \DateTime::createFromFormat('Y-m-d H:i:s', $v) : null);
             }
 
             $this->$field = $v;

@@ -13,10 +13,14 @@
  */
 namespace HeloStore\ADLS\Subscription;
 
+use DateTime;
 use Exception;
 
 class Utils extends Singleton
 {
+
+    protected $overrodePresentDate = null;
+
 
     public function snakeToCamel($str, array $noStrip = [])
     {
@@ -31,7 +35,7 @@ class Utils extends Singleton
         return $str;
     }
 
-    function camelToSnake($input)
+    public function camelToSnake($input)
     {
         preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $input, $matches);
         $ret = $matches[0];
@@ -40,4 +44,34 @@ class Utils extends Singleton
         }
         return implode('_', $ret);
     }
+
+    /**
+     * @param DateTime $date
+     *
+     * @return $this
+     */
+    public function overridePresentDate(\DateTime $date)
+    {
+        $this->overrodePresentDate = $date;
+
+        return $this;
+    }
+    /**
+     * @return DateTime
+     */
+    public function getCurrentDate()
+    {
+        return (empty($this->overrodePresentDate)) ? new \DateTime() : $this->overrodePresentDate;
+    }
+
+    /**
+     * @param DateTime $date
+     *
+     * @return DateTime
+     */
+    public function discardSeconds(DateTime $date)
+    {
+        return $date->setTime($date->format('H'), $date->format('i'), 0);
+    }
+
 }

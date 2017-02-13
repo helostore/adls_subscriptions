@@ -17,6 +17,11 @@ use Exception;
 
 class SubscriptionManager extends Manager
 {
+    /**
+     * @var SubscriptionRepository
+     */
+    protected $repository;
+
     public function __construct()
     {
         $this->setRepository(SubscriptionRepository::instance());
@@ -42,7 +47,7 @@ class SubscriptionManager extends Manager
 	{
         $paidStatuses = array('P');
         $isPaidStatus = in_array($statusTo, $paidStatuses);
-
+        /** @var SubscriptionRepository $subscriptionRepository */
         $subscriptionRepository = $this->getRepository();
         $subscribableManager = SubscribableManager::instance();
         $subscribableRepository = SubscribableRepository::instance();
@@ -82,6 +87,8 @@ class SubscriptionManager extends Manager
                 $planId = $plan->getId();
 
 
+
+                /** @var Subscription $subscription */
                 if (!empty($orderInfo['subscription'])) {
                     $subscription = $orderInfo['subscription'];
                 } else {
@@ -103,33 +110,32 @@ class SubscriptionManager extends Manager
                             throw new Exception('Unable to create subscription for order ' . $orderId);
                         }
                         $subscription = $subscriptionRepository->findOneById($subscriptionId);
+                        CycleManager::instance()->begin($subscription);
                     } else {
+                        $subscription->activate();
+                        if (!$subscriptionRepository->update($subscription)) {
+                            throw new Exception('Failed updating subscription ' . __LINE__);
+                        }
+                    }
+
+
+                    if (!$subscription->isActive() && $subscription->isNew()) {
 
                     }
-                    $subscription->activate();
+
 
                 } else {
-                    $subscription->disable();
-                }
-
-                if (!$subscriptionRepository->update($subscription)) {
-                    throw new Exception('Failed updating subscription');
+                    if (!empty($subscription)) {
+                        if (!$subscription->isDisabled()) {
+                            $subscription->disable();
+                            if (!$subscriptionRepository->update($subscription)) {
+                                throw new Exception('Failed updating subscription ' . __LINE__);
+                            }
+                        }
+                    }
                 }
 
             }
-
-
-            $notificationState = (AREA == 'A' ? 'I' : 'K');
-            if ($isPaidStatus) {
-
-
-            } else {
-                if (!defined('ORDER_MANAGEMENT')) {
-
-
-                }
-            }
-
         }
 
         return true;
@@ -182,4 +188,16 @@ class SubscriptionManager extends Manager
 	/**
 	 * Methods
 	 */
+
+
+    /**
+     * @param Subscription $subscription
+     * @param integer $thresholdDays
+     *
+     * @return bool
+     */
+    public function alert($subscription, $thresholdDays)
+    {
+        throw new Exception('Do me!');
+    }
 }

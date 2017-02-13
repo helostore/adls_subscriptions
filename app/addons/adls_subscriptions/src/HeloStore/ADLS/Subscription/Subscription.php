@@ -79,6 +79,16 @@ class Subscription extends Entity
     protected $neverExpires;
 
     /**
+     * @var integer
+     */
+    protected $paidCycles;
+
+    /**
+     * @var integer
+     */
+    protected $elapsedCycles;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -277,6 +287,67 @@ class Subscription extends Entity
     }
 
     /**
+     * @return int
+     */
+    public function getPaidCycles()
+    {
+        return $this->paidCycles;
+    }
+
+    /**
+     * @param int $paidCycles
+     *
+     * @return $this
+     */
+    public function setPaidCycles($paidCycles)
+    {
+        $this->paidCycles = $paidCycles;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     *
+     */
+    public function payCycle()
+    {
+        $this->paidCycles++;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getElapsedCycles()
+    {
+        return $this->elapsedCycles;
+    }
+
+    /**
+     * @param int $elapsedCycles
+     *
+     * @return $this
+     */
+    public function setElapsedCycles($elapsedCycles)
+    {
+        $this->elapsedCycles = $elapsedCycles;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function elapseCycle()
+    {
+        $this->elapsedCycles++;
+
+        return $this;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCreatedAt()
@@ -349,4 +420,78 @@ class Subscription extends Entity
 
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->status == self::STATUS_ACTIVE;
+    }
+    /**
+     * @return bool
+     */
+    public function isInactive()
+    {
+        return $this->status == self::STATUS_INACTIVE;
+    }
+    /**
+     * @return bool
+     */
+    public function isDisabled()
+    {
+        return $this->status == self::STATUS_DISABLED;
+    }
+
+
+
+
+
+    /**
+     * Methods
+     */
+
+    /**
+     * @return string
+     */
+    public function getDates()
+    {
+        $start = !empty($this->startDate) ? $this->startDate->format('Y-m-d') : 'n/a';
+        $end = !empty($this->endDate) ? $this->endDate->format('Y-m-d') : 'n/a';
+
+        return $start . ' - ' . $end;
+    }
+
+    /**
+     * Checks if a subscription is newly created
+     *
+     * @return bool
+     */
+    public function isNew()
+    {
+        return empty($this->startDate) && empty($this->endDate) /*&& empty($this->paidCycles) && empty($this->elapsedCycles)*/;
+    }
+
+    /**
+     * Checks if subscription is expired
+     *
+     * @return bool
+     */
+    public function isExpired()
+    {
+        if (empty($this->endDate)) {
+            return false;
+        }
+
+        $now = Utils::instance()->getCurrentDate();
+        $endDate = clone $this->endDate;
+
+        // discard seconds in comparison (for testing purposes)
+        Utils::instance()->discardSeconds($now);
+        Utils::instance()->discardSeconds($endDate);
+//        aa($endDate->format('Y-m-d H:i:s') . ' <= ' . $now->format('Y-m-d H:i:s') . ' = `' . (int)($endDate <= $now).'`');
+
+        return ($endDate <= $now);
+    }
+
 }

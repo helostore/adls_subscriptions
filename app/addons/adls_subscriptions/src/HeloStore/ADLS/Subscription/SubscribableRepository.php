@@ -73,26 +73,26 @@ class SubscribableRepository extends EntityRepository
 	public function find($params = array())
 	{
 		$condition = array();
-		if (!empty($params['id'])) {
+		if (isset($params['id'])) {
 			$condition[] = db_quote('id = ?n', $params['id']);
 		}
-		if (!empty($params['objectType'])) {
+		if (isset($params['objectType'])) {
 			$condition[] = db_quote('objectType = ?s', $params['objectType']);
 
-			if (!empty($params['objectId'])) {
+			if (isset($params['objectId'])) {
 				$condition[] = db_quote('objectId = ?n', $params['objectId']);
 			}
 		}
 
-		$condition = !empty($condition) ? ' OR ('. implode(' AND ', $condition) . ')' : '';
-		$query = db_quote('SELECT * FROM ?p WHERE 1=2 ?p LIMIT 0,1', $this->table, $condition);
+		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
+		$query = db_quote('SELECT * FROM ?p ?p LIMIT 0,1', $this->table, $condition);
 
 		$items = db_get_array($query);
 		if (empty($items)) {
 			return null;
 		}
 
-		if (!empty($params['one'])) {
+		if (isset($params['one'])) {
 			$items = !empty($items) ? reset($items) : null;
 		}
 

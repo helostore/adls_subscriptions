@@ -15,6 +15,13 @@ namespace HeloStore\ADLS\Subscription;
 
 class SubscribableManager extends Manager
 {
+
+    /**
+     * @var SubscribableRepository
+     */
+    protected $repository;
+
+
     /**
      * SubscribableManager constructor.
      */

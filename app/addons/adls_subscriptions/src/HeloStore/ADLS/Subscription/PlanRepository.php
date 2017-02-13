@@ -56,17 +56,17 @@ class PlanRepository extends EntityRepository
 	/**
 	 * @param array $params
 	 *
-	 * @return array|Plan|null
+	 * @return Plan[]|Plan|null
 	 */
 	public function find($params = array())
 	{
 		$condition = array();
-		if (!empty($params['id'])) {
+		if (isset($params['id'])) {
 			$condition[] = db_quote('id = ?n', $params['id']);
 		}
-		$condition = !empty($condition) ? ' OR ('. implode(' AND ', $condition) . ')' : '';
+		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
 
-		$query = db_quote('SELECT * FROM ?p WHERE 1=2 ?p LIMIT 0,1', $this->table, $condition);
+		$query = db_quote('SELECT * FROM ?p ?p LIMIT 0,1', $this->table, $condition);
 
 
 		$items = db_get_array($query);
@@ -78,7 +78,7 @@ class PlanRepository extends EntityRepository
 			$items[$k] = new Plan($v);
 		}
 
-		if (!empty($params['one'])) {
+		if (isset($params['one'])) {
 			$items = !empty($items) ? reset($items) : null;
 		}
 

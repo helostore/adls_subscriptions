@@ -16,6 +16,11 @@ namespace HeloStore\ADLS\Subscription;
 
 class PlanManager extends Manager
 {
+    /**
+     * @var PlanRepository
+     */
+    protected $repository;
+
 	public function __construct()
 	{
 		$this->setRepository(PlanRepository::instance());

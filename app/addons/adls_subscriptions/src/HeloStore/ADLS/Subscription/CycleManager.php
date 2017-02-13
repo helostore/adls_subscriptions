@@ -13,36 +13,113 @@
  */
 namespace HeloStore\ADLS\Subscription;
 
+use DateTime;
 use Exception;
 
 class CycleManager extends Manager
 {
+    /**
+     * @param Plan $plan
+     */
+    public function timeTravel(Plan $plan)
+    {
+        $start = new \DateTime();
+
+        $date = $start;
+        $end = new \DateTime();
+        $end->modify('+3 years');
+        while ($date <= $end) {
+            $date->modify('+1 month');
+            echo $date->format('Y-m-d') . PHP_EOL;
+        }
+    }
 
     /**
-     * https://stripe.com/docs/subscriptions/billing-cycle
-     *
-     *
+     * Activates/configures a new subscription
      *
      * @param Subscription $subscription
+     *
+     * @return bool
      */
-    public function elapse(Subscription $subscription)
+    public function begin(Subscription $subscription)
+    {
+        $planId = $subscription->getPlanId();
+        $subscriptionRepository = SubscriptionRepository::instance();
+        $planRepository = PlanRepository::instance();
+        $plan = $planRepository->findOneById($planId);
+
+        $subscription->setStartDate(new \DateTime());
+        $subscription->setEndDate(new \DateTime());
+        $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
+        $subscription->payCycle();
+
+        $subscription->activate();
+        return $subscriptionRepository->update($subscription);
+    }
+
+    /**
+     * Suspends a past-due subscription
+     *
+     * @param Subscription $subscription
+     *
+     * @return bool
+     */
+    public function suspend(Subscription $subscription)
+    {
+        $subscriptionRepository = SubscriptionRepository::instance();
+
+        $subscription->elapseCycle();
+        $subscription->disable();
+
+        return $subscriptionRepository->update($subscription);
+    }
+
+
+    public function check(Subscription $subscription)
     {
 
-        $planId = $subscription->getPlanId();
-        $planManager = PlanManager::instance();
-        $plan = $planManager->findOneById($planId);
+        if ($subscription->isExpired()) {
+            if ($this->suspend($subscription)) {
+            } else {
+
+            }
+
+        } else if ($this->checkAlerts($subscription)) {
+
+        }
+
+    }
+
+    public function checkAlerts(Subscription $subscription)
+    {
+        if ($subscription->isNeverExpires()) {
+            return false;
+        }
+        $utils = Utils::instance();
+        $now = $utils->getCurrentDate();
+        $endDate = $subscription->getEndDate();
+        $utils->discardSeconds($endDate);
+
+        // how many days before expiration send alerts
+        $thresholds = array(
+            1, 3, 7
+//            '- 3 days',
+//            '- 7 days'
+        );
 
 
-//        $nextDate = $subscription
-
-//        $data = $plan->toArray();
-
-
-//        var_dump($subscription);
-//        var_dump($plan);
-//        var_dump($data);
-
-
-
+        foreach ($thresholds as $thresholdDays) {
+//            $modifier = "- $thresholdDays days";
+//            $thresholdDate = clone $endDate;
+//            $thresholdDate->modify($modifier);
+            $interval = $now->diff($endDate);
+            if ($interval->days && $interval->days == $thresholdDays) {
+//                aa('$now:           ' . $now->format('Y-m-d H:i:s'));
+//                aa('$endDate:       ' . $endDate->format('Y-m-d H:i:s'));
+//                aa('$thresholdDate: ' . $thresholdDate->format('Y-m-d H:i:s'));
+//                aa($interval);
+                SubscriptionManager::instance()->alert($subscription, $thresholdDays);
+            }
+        }
     }
 }

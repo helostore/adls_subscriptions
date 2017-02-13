@@ -13,8 +13,6 @@
  */
 namespace HeloStore\ADLS\Subscription;
 
-use Exception;
-
 class SubscriptionRepository extends EntityRepository
 {
 	protected $table = '?:adlss_subscriptions';
@@ -45,9 +43,11 @@ class SubscriptionRepository extends EntityRepository
 			'itemId' => $itemId,
 			'productId' => $productId,
             'status' => Subscription::STATUS_INACTIVE,
-			'startDate' => $startDate->format('Y-m-d H:i:s'),
-			'endDate' => $endDate->format('Y-m-d H:i:s'),
+			'startDate' => null,
+			'endDate' => null,
 			'neverExpires' => $neverExpires,
+			'paidCycles' => 0,
+			'elapsedCycles' => 0,
 			'createdAt' => $date->format('Y-m-d H:i:s'),
 			'updateAt' => $date->format('Y-m-d H:i:s'),
 		);
@@ -58,39 +58,56 @@ class SubscriptionRepository extends EntityRepository
 	}
 
 	/**
+	 * @param Subscription $subscription
+	 */
+	public function update(Subscription $subscription)
+	{
+		$subscription->setUpdatedAt(new \DateTime());
+		$data = $subscription->toArray();
+        $query = db_quote('UPDATE ' . $this->table . ' SET ?u WHERE id = ?d', $data, $subscription->getId());
+		$result = db_query($query);
+
+		return $result;
+	}
+
+	/**
 	 * @param array $params
 	 *
-	 * @return array|Subscription|null
+	 * @return Subscription[]|Subscription|null
 	 */
 	public function find($params = array())
 	{
 		$condition = array();
-		if (!empty($params['id'])) {
+		if (isset($params['id'])) {
 			$condition[] = db_quote('id = ?n', $params['id']);
 		}
 
-        if (!empty($params['userId'])) {
+        if (isset($params['userId'])) {
             $condition[] = db_quote('userId = ?n', $params['userId']);
         }
-        if (!empty($params['planId'])) {
+        if (isset($params['planId'])) {
             $condition[] = db_quote('planId = ?n', $params['planId']);
         }
-        if (!empty($params['orderId'])) {
+        if (isset($params['orderId'])) {
             $condition[] = db_quote('orderId = ?n', $params['orderId']);
         }
-        if (!empty($params['itemId'])) {
+        if (isset($params['itemId'])) {
             $condition[] = db_quote('itemId = ?s', $params['itemId']);
         }
-        if (!empty($params['productId'])) {
+        if (isset($params['productId'])) {
             $condition[] = db_quote('productId = ?n', $params['productId']);
         }
-        if (!empty($params['status'])) {
+        if (isset($params['status'])) {
             $condition[] = db_quote('status = ?s', $params['status']);
         }
 
+        $limit = '';
+        if (isset($params['one'])) {
+            $limit = 'LIMIT 0,1';
+        }
 
-		$condition = !empty($condition) ? ' OR ('. implode(' AND ', $condition) . ')' : '';
-		$query = db_quote('SELECT * FROM ?p WHERE 1=2 ?p LIMIT 0,1', $this->table, $condition);
+		$condition = !empty($condition) ? ' WHERE ' . implode(' AND ', $condition) . '' : '';
+		$query = db_quote('SELECT * FROM ?p ?p ?p', $this->table, $condition, $limit);
 
 		$items = db_get_array($query);
 		if (empty($items)) {
@@ -101,11 +118,37 @@ class SubscriptionRepository extends EntityRepository
 			$items[$k] = new Subscription($v);
 		}
 
-		if (!empty($params['one'])) {
+		if (isset($params['one'])) {
 			$items = !empty($items) ? reset($items) : null;
 		}
 
 		return $items;
+	}
+
+	/**
+	 * @param $userId
+	 * @param $orderId
+	 *
+	 * @return Subscription|Subscription[]|null
+	 */
+	public function findByUserOrder($userId, $orderId)
+	{
+		return $this->find(array(
+			'userId' => $userId,
+			'orderId' => $orderId
+		));
+	}
+
+	/**
+	 * @param $orderId
+	 *
+	 * @return Subscription|Subscription[]|null
+	 */
+	public function findByOrder($orderId)
+	{
+		return $this->find(array(
+			'orderId' => $orderId
+		));
 	}
 
 	/**
@@ -131,19 +174,6 @@ class SubscriptionRepository extends EntityRepository
 			'id' => $id
 		));
 	}
-
-    /**
-     * @param Subscription $subscription
-     */
-    public function update(Subscription $subscription)
-    {
-        $date = new \DateTime();
-
-        $data = $subscription->toArray();
-        $data['updateAt'] = $date->format('Y-m-d H:i:s');
-
-        return db_query('UPDATE ' . $this->table . ' SET ?u', $data);
-    }
 
 
 }
