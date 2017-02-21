@@ -15,6 +15,7 @@ namespace HeloStore\ADLS\Subscription;
 
 use DateTime;
 use Exception;
+use Tygh\Registry;
 
 class CycleManager extends Manager
 {
@@ -38,10 +39,10 @@ class CycleManager extends Manager
      * Activates/configures a new subscription
      *
      * @param Subscription $subscription
-     *
+     * @param integer $initialPaidPeriod Initial paid period, number of months
      * @return bool
      */
-    public function begin(Subscription $subscription)
+    public function begin(Subscription $subscription, $initialPaidPeriod = null)
     {
         $planId = $subscription->getPlanId();
         $subscriptionRepository = SubscriptionRepository::instance();
@@ -50,8 +51,14 @@ class CycleManager extends Manager
 
         $subscription->setStartDate(new \DateTime());
         $subscription->setEndDate(new \DateTime());
-        $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
-        $subscription->payCycle();
+        if (!empty($initialPaidPeriod)) {
+            $paidCycles = $initialPaidPeriod / $plan->getCycle();
+            $subscription->payCycle($paidCycles);
+            $subscription->getEndDate()->modify('+ ' . $initialPaidPeriod . ' months');
+        } else {
+            $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
+            $subscription->payCycle();
+        }
 
         $subscription->activate();
         return $subscriptionRepository->update($subscription);
@@ -61,15 +68,37 @@ class CycleManager extends Manager
      * Suspends a past-due subscription
      *
      * @param Subscription $subscription
-     *
      * @return bool
+     * @throws Exception
+     * @throws \Tygh\Exceptions\DeveloperException
      */
     public function suspend(Subscription $subscription)
     {
         $subscriptionRepository = SubscriptionRepository::instance();
 
         $subscription->elapseCycle();
-        $subscription->disable();
+        $subscription->inactivate();
+
+
+        // Change order status to Expired (A)
+        $order = fn_get_order_info($subscription->getOrderId());
+        if (empty($order)) {
+            throw new Exception('Failed while suspending subscription: order not found');
+        }
+
+        $settings = Utils::instance()->getSettings();
+
+        $statusTo = $settings['order_status_on_suspend'];
+        $orderId = $subscription->getOrderId();
+        $forceNotification = array();
+
+        if (defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
+            $forceNotification = array('C' => false, 'A' => false, 'V' => false);
+        }
+        fn_change_order_status($orderId, $statusTo, $statusFrom = '', $forceNotification, $placeOrder = false);
+
+
+        fn_set_hook('adls_subscriptions_post_suspend', $subscription);
 
         return $subscriptionRepository->update($subscription);
     }
@@ -88,6 +117,7 @@ class CycleManager extends Manager
 
         }
 
+        return true;
     }
 
     public function checkAlerts(Subscription $subscription)
@@ -101,24 +131,37 @@ class CycleManager extends Manager
         $utils->discardSeconds($endDate);
 
         // how many days before expiration send alerts
-        $thresholds = array(
-            1, 3, 7
-//            '- 3 days',
-//            '- 7 days'
+        $alerts = array(
+            array(
+                'days' => 7,
+                'template' => '7_days_before.tpl',
+                'subject' => 'Your subscription expires in 7 days',
+                'title' => 'Your subscription expires in 7 days'
+            ),
+            array(
+                'days' => 3,
+                'template' => '3_days_before.tpl',
+                'subject' => 'Your subscription expires in 3 days'
+            ),
+            array(
+                'days' => 1,
+                'template' => '1_day_before.tpl',
+                'subject' => 'Your subscription expires tomorrow!'
+            ),
         );
 
 
-        foreach ($thresholds as $thresholdDays) {
+        foreach ($alerts as $alert) {
 //            $modifier = "- $thresholdDays days";
 //            $thresholdDate = clone $endDate;
 //            $thresholdDate->modify($modifier);
             $interval = $now->diff($endDate);
-            if ($interval->days && $interval->days == $thresholdDays) {
+            if ($interval->days && $interval->days == $alert['days']) {
 //                aa('$now:           ' . $now->format('Y-m-d H:i:s'));
 //                aa('$endDate:       ' . $endDate->format('Y-m-d H:i:s'));
 //                aa('$thresholdDate: ' . $thresholdDate->format('Y-m-d H:i:s'));
 //                aa($interval);
-                SubscriptionManager::instance()->alert($subscription, $thresholdDays);
+                SubscriptionManager::instance()->alert($subscription, $alert);
             }
         }
     }

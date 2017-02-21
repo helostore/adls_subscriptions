@@ -12,6 +12,30 @@ msgctxt "Addons::description::adls_subscriptions"
 msgid "Adds subscriptions feature to CS-Cart"
 msgstr "Adds subscriptions feature to CS-Cart"
 
+msgctxt "SettingsOptions::adls_subscriptions::email"
+msgid "HELOstore email"
+msgstr "HELOstore email"
+
+msgctxt "SettingsOptions::adls_subscriptions::password"
+msgid "HELOstore password"
+msgstr "HELOstore password"
+
+msgctxt "SettingsOptions::adls_subscriptions::license"
+msgid "License key"
+msgstr "License key"
+
+msgctxt "SettingsSections::adls_subscriptions::settings"
+msgid ""
+msgstr "Settings"
+
+msgctxt "SettingsOptions::adls_subscriptions::subscriptions"
+msgid ""
+msgstr "Subscriptions"
+
+msgctxt "SettingsOptions::adls_subscriptions::order_status_on_suspend"
+msgid ""
+msgstr "Order status for suspended subscriptions"
+
 msgctxt "Languages::adls_subscriptions.sample_lang_var"
 msgid "Sample translation entry for adls_subscriptions"
 msgstr "Sample translation entry for adls_subscriptions"

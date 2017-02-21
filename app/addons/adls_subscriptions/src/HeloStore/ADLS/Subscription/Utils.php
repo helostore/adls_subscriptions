@@ -15,6 +15,8 @@ namespace HeloStore\ADLS\Subscription;
 
 use DateTime;
 use Exception;
+use Tygh\Registry;
+use Tygh\Settings;
 
 class Utils extends Singleton
 {
@@ -74,4 +76,8 @@ class Utils extends Singleton
         return $date->setTime($date->format('H'), $date->format('i'), 0);
     }
 
+    public function getSettings()
+    {
+        return Registry::get('addons.adls_subscriptions');
+    }
 }

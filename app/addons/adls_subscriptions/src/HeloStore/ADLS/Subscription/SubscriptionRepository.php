@@ -17,22 +17,21 @@ class SubscriptionRepository extends EntityRepository
 {
 	protected $table = '?:adlss_subscriptions';
 
-    /**
-     * Create new subscription
-     *
-     * @param integer $userId
-     * @param integer $planId
-     * @param $orderId
-     * @param $itemId
-     * @param integer $productId
-     *
-     * @return bool|int
-     */
-	public function create($userId, $planId, $orderId, $itemId, $productId)
+	/**
+	 * Create new subscription
+	 *
+	 * @param integer $userId
+	 * @param integer $planId
+	 * @param $orderId
+	 * @param $itemId
+	 * @param integer $productId
+	 * @param $companyId
+	 *
+	 * @return bool|int
+	 */
+	public function create($userId, $planId, $orderId, $itemId, $productId, $companyId)
 	{
 		$date = new \DateTime();
-		$startDate = clone $date;
-		$endDate = clone $date;
 
 		$neverExpires = 0;
 
@@ -42,6 +41,7 @@ class SubscriptionRepository extends EntityRepository
 			'orderId' => $orderId,
 			'itemId' => $itemId,
 			'productId' => $productId,
+			'companyId' => $companyId,
             'status' => Subscription::STATUS_INACTIVE,
 			'startDate' => null,
 			'endDate' => null,
@@ -64,10 +64,11 @@ class SubscriptionRepository extends EntityRepository
 	{
 		$subscription->setUpdatedAt(new \DateTime());
 		$data = $subscription->toArray();
+		$data['updatedAt'] = Utils::instance()->getCurrentDate()->format('Y-m-d H:i:s');
         $query = db_quote('UPDATE ' . $this->table . ' SET ?u WHERE id = ?d', $data, $subscription->getId());
 		$result = db_query($query);
 
-		return $result;
+//		return $result;
 	}
 
 	/**

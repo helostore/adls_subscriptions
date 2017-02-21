@@ -59,6 +59,11 @@ class Subscription extends Entity
     protected $productId;
 
     /**
+     * @var integer
+     */
+    protected $companyId;
+
+    /**
      * @var string
      */
     protected $status;
@@ -207,6 +212,25 @@ class Subscription extends Entity
     }
 
     /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     * @return $this
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getStatus()
@@ -307,12 +331,13 @@ class Subscription extends Entity
     }
 
     /**
-     * @return $this
+     * @param int $incrementValue
      *
+     * @return $this
      */
-    public function payCycle()
+    public function payCycle($incrementValue = 1)
     {
-        $this->paidCycles++;
+        $this->paidCycles += $incrementValue;
 
         return $this;
     }

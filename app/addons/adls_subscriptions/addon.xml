@@ -12,9 +12,10 @@
 
     <queries>
         <item for="install">ALTER TABLE `?:products` ADD `adls_subscription_id` smallint(2);</item>
+        <item for="uninstall">ALTER TABLE `?:products` DROP `adls_subscription_id`;</item>
 
         <item for="install">
-            CREATE TABLE `?:adlss_plans` (
+            CREATE TABLE IF NOT EXISTS `?:adlss_plans` (
             `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
             `name` varchar(255) NOT NULL,
             `cycle` tinyint(4) NOT NULL,
@@ -25,7 +26,7 @@
         </item>
 
         <item for="install">
-            CREATE TABLE `?:adlss_subscribables` (
+            CREATE TABLE IF NOT EXISTS `?:adlss_subscribables` (
             `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
             `planId` tinyint(4) DEFAULT NULL,
             `objectType` varchar(16) NOT NULL,
@@ -37,13 +38,14 @@
         </item>
 
         <item for="install">
-            CREATE TABLE `?:adlss_subscriptions` (
+            CREATE TABLE IF NOT EXISTS `?:adlss_subscriptions` (
             `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
             `userId` mediumint(8) unsigned NOT NULL,
             `planId` mediumint(8) NOT NULL,
             `orderId` mediumint(8) NOT NULL,
             `itemId` varchar(12) NOT NULL,
             `productId` mediumint(8) NOT NULL,
+            `companyId` mediumint(8) NOT NULL,
             `status` char(1) NOT NULL,
             `startDate` datetime DEFAULT NULL,
             `endDate` datetime DEFAULT NULL,
@@ -64,4 +66,39 @@
             <url>https://helostore.com/</url>
         </author>
     </authors>
+    <settings layout="separate" edition_type="ROOT,ULT:VENDOR">
+        <sections>
+            <section id="settings">
+                <items>
+                    <item id="subscriptions">
+                        <type>header</type>
+                    </item>
+                    <item id="order_status_on_suspend">
+                        <type>selectbox</type>
+                        <default_value>I</default_value>
+                        <variants>
+                        </variants>
+                    </item>
+                </items>
+            </section>
+            <section id="license">
+                <name>License</name>
+                <items>
+                    <item id="email">
+                        <type>input</type>
+                    </item>
+                    <item id="password">
+                        <type>password</type>
+                    </item>
+                    <item id="license">
+                        <type>input</type>
+                    </item>
+                    <item id="info">
+                        <type>info</type>
+                        <handler>fn_sidekick_info,adls_subscriptions</handler>
+                    </item>
+                </items>
+            </section>
+        </sections>
+    </settings>
 </addon>

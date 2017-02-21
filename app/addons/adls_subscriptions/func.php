@@ -68,9 +68,17 @@ function fn_adls_subscriptions_change_order_status($status_to, $status_from, $or
     return SubscriptionManager::instance()->onChangeOrderStatus($status_to, $status_from, $orderInfo, $force_notification, $order_statuses, $place_order);
 }
 
-function fn_adls_subscriptions_get_order_info($order, $additional_data)
+function fn_adls_subscriptions_get_order_info(&$order, $additional_data)
 {
     return SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
+}
+
+
+function fn_settings_variants_addons_adls_subscriptions_order_status_on_suspend()
+{
+    $statuses = fn_get_simple_statuses(STATUSES_ORDER);
+
+    return $statuses;
 }
 
 /**
