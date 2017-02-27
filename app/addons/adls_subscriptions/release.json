@@ -1,0 +1,15 @@
+[
+    {
+        "version": "0.0.2",
+        "releaseDate": "2017-02-27 03:23:05",
+        "releaseTimestamp": "1488208985",
+        "hash": "5752996463e96d903355bf85784d3c74e02b3448",
+        "commits": [
+            "[2017-02-27] Bumped version to 0.0.2",
+            "[2017-02-27]\tIntegrated Plans with Production Options, added more unit tests",
+            "[2017-02-21]\tAdded alerts",
+            "[2017-02-13]\tAdded a working CycleManager + alerts stub",
+            "[2017-02-04]\tAdded repositories + order test"
+        ]
+    }
+]
