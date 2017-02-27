@@ -35,80 +35,15 @@ class CycleManager extends Manager
         }
     }
 
-    /**
-     * Activates/configures a new subscription
-     *
-     * @param Subscription $subscription
-     * @param integer $initialPaidPeriod Initial paid period, number of months
-     * @return bool
-     */
-    public function begin(Subscription $subscription, $initialPaidPeriod = null)
-    {
-        $planId = $subscription->getPlanId();
-        $subscriptionRepository = SubscriptionRepository::instance();
-        $planRepository = PlanRepository::instance();
-        $plan = $planRepository->findOneById($planId);
 
-        $subscription->setStartDate(new \DateTime());
-        $subscription->setEndDate(new \DateTime());
-        if (!empty($initialPaidPeriod)) {
-            $paidCycles = $initialPaidPeriod / $plan->getCycle();
-            $subscription->payCycle($paidCycles);
-            $subscription->getEndDate()->modify('+ ' . $initialPaidPeriod . ' months');
-        } else {
-            $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
-            $subscription->payCycle();
-        }
-
-        $subscription->activate();
-        return $subscriptionRepository->update($subscription);
-    }
-
-    /**
-     * Suspends a past-due subscription
-     *
-     * @param Subscription $subscription
-     * @return bool
-     * @throws Exception
-     * @throws \Tygh\Exceptions\DeveloperException
-     */
-    public function suspend(Subscription $subscription)
-    {
-        $subscriptionRepository = SubscriptionRepository::instance();
-
-        $subscription->elapseCycle();
-        $subscription->inactivate();
-
-
-        // Change order status to Expired (A)
-        $order = fn_get_order_info($subscription->getOrderId());
-        if (empty($order)) {
-            throw new Exception('Failed while suspending subscription: order not found');
-        }
-
-        $settings = Utils::instance()->getSettings();
-
-        $statusTo = $settings['order_status_on_suspend'];
-        $orderId = $subscription->getOrderId();
-        $forceNotification = array();
-
-        if (defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
-            $forceNotification = array('C' => false, 'A' => false, 'V' => false);
-        }
-        fn_change_order_status($orderId, $statusTo, $statusFrom = '', $forceNotification, $placeOrder = false);
-
-
-        fn_set_hook('adls_subscriptions_post_suspend', $subscription);
-
-        return $subscriptionRepository->update($subscription);
-    }
 
 
     public function check(Subscription $subscription)
     {
+        $subscriptionManager = SubscriptionManager::instance();
 
         if ($subscription->isExpired()) {
-            if ($this->suspend($subscription)) {
+            if ($subscriptionManager->suspend($subscription)) {
             } else {
 
             }

@@ -36,6 +36,83 @@ msgctxt "SettingsOptions::adls_subscriptions::order_status_on_suspend"
 msgid ""
 msgstr "Order status for suspended subscriptions"
 
-msgctxt "Languages::adls_subscriptions.sample_lang_var"
-msgid "Sample translation entry for adls_subscriptions"
-msgstr "Sample translation entry for adls_subscriptions"
+msgctxt "Languages::adlss.subscriptions"
+msgid "Subscriptions"
+msgstr "Subscriptions"
+
+msgctxt "Languages::adlss.subscriptions.manage"
+msgid "Manage"
+msgstr "Manage"
+
+msgctxt "Languages::adlss.startDate"
+msgid "Start"
+msgstr "Start"
+
+msgctxt "Languages::adlss.endDate"
+msgid "End"
+msgstr "End"
+
+msgctxt "Languages::adlss.neverExpires"
+msgid "Endless"
+msgstr "Endless"
+
+msgctxt "Languages::adlss.paidCycles"
+msgid "Paid cycles"
+msgstr "Paid cycles"
+
+msgctxt "Languages::adlss.elapsedCycles"
+msgid "Elapsed cycles"
+msgstr "Elapsed cycles"
+
+msgctxt "Languages::adlss.updatedAt"
+msgid "Updated"
+msgstr "Updated"
+
+msgctxt "Languages::adlss.createdAt"
+msgid "Created"
+msgstr "Created"
+
+msgctxt "Languages::adlss.subscription.status.i"
+msgid "Inactive"
+msgstr "Inactive"
+
+msgctxt "Languages::adlss.subscription.status.a"
+msgid "Active"
+msgstr "Active"
+
+msgctxt "Languages::adlss.subscription.status.d"
+msgid "Disabled"
+msgstr "Disabled"
+
+msgctxt "Languages::adlss.plan"
+msgid "Plan"
+msgstr "Plan"
+
+msgctxt "Languages::adlss.plans"
+msgid "Plans"
+msgstr "Plans"
+
+msgctxt "Languages::adlss.subscribable.create.success"
+msgid ""
+msgstr "Subscription plan successfully attached to the updated object"
+
+msgctxt "Languages::adlss.subscribable.create.fail"
+msgid ""
+msgstr "Subscription plan could not be attached to the updated object"
+
+msgctxt "Languages::adlss.subscribable.update.success"
+msgid ""
+msgstr "Subscription plan was successfully updated"
+
+msgctxt "Languages::adlss.subscribable.update.fail"
+msgid ""
+msgstr "Subscription plan update failed"
+
+
+msgctxt "Languages::adlss.subscribable.delete.success"
+msgid ""
+msgstr "Subscription plan successfully removed from the updated object"
+
+msgctxt "Languages::adlss.subscribable.delete.fail"
+msgid ""
+msgstr "Subscription plan could not be removed to the updated object"

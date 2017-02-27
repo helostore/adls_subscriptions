@@ -21,9 +21,6 @@ use Tygh\Settings;
 class Utils extends Singleton
 {
 
-    protected $overrodePresentDate = null;
-
-
     public function snakeToCamel($str, array $noStrip = [])
     {
         // non-alpha and non-numeric characters become spaces
@@ -52,9 +49,11 @@ class Utils extends Singleton
      *
      * @return $this
      */
-    public function overridePresentDate(\DateTime $date)
+    public function overridePresentDate(DateTime $date)
     {
-        $this->overrodePresentDate = $date;
+        global $_timeTravelDate;
+
+        $_timeTravelDate = $date;
 
         return $this;
     }
@@ -63,7 +62,9 @@ class Utils extends Singleton
      */
     public function getCurrentDate()
     {
-        return (empty($this->overrodePresentDate)) ? new \DateTime() : $this->overrodePresentDate;
+        global $_timeTravelDate;
+
+        return (empty($_timeTravelDate)) ? new \DateTime() : clone $_timeTravelDate;
     }
 
     /**

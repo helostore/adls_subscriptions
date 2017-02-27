@@ -12,6 +12,14 @@ namespace HeloStore\ADLS\Subscription;
 class Entity
 {
     /**
+     * Keep here the entity$prop variables for now
+     *
+     * @var array
+     */
+    public $extra = array();
+
+
+    /**
      * Entity constructor.
      *
      * @param array $data
@@ -31,7 +39,7 @@ class Entity
         $vars = get_object_vars($this);
         $array = array();
         foreach ($vars as $field => $value) {
-            if (in_array($field, array('_fieldsMap'))) {
+            if (in_array($field, array('_fieldsMap')) || $field == 'extra') {
                 continue;
             }
             if (in_array($field, array(
@@ -62,6 +70,11 @@ class Entity
         foreach ($data as $field => $v) {
 //            $field = Utils::instance()->snakeToCamel($k);
 
+            // Skip special variables (e.g. user$email will be used to hydrate $this->user
+            if (strstr($field, '$') != false) {
+                $this->extra[$field] = $v;
+                continue;
+            }
             if (!empty($this->_fieldsMap)) {
                 $field = str_replace(array_keys($this->_fieldsMap), array_values($this->_fieldsMap), $field);
             }

@@ -24,4 +24,6 @@ fn_register_hooks(
     , 'get_product_option_data_post'
     , 'change_order_status'
     , 'get_order_info'
+    , 'get_product_files_before_select'
+    , 'get_product_files_post'
 );

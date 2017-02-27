@@ -12,7 +12,9 @@
  * @version    $Id$
  */
 
+use HeloStore\ADLS\Subscription\SubscriptionRepository;
 use Tygh\Registry;
+use Tygh\Tygh;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
@@ -25,5 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if ($mode == 'manage') {
+	$subscriptionRepository = SubscriptionRepository::instance();
+	$params = $_REQUEST;
+	$params['extended'] = true;
+	$params['items_per_page'] = !empty($params['items_per_page']) ? $params['items_per_page'] : Registry::get('settings.Appearance.admin_elements_per_page');
+	list($subscriptions, $search) = $subscriptionRepository->find($params);
 
+	Tygh::$app['view']->assign('subscriptions', $subscriptions);
+	Tygh::$app['view']->assign('search', $search);
 }

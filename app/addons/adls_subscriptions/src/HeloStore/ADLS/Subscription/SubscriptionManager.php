@@ -47,6 +47,8 @@ class SubscriptionManager extends Manager
      */
 	public function onChangeOrderStatus($statusTo, $statusFrom, $orderInfo, $forceNotification, $orderStatuses, $placeOrder)
 	{
+        $orderInfo['status_from'] = $statusFrom;
+
         return $this->processOrder($orderInfo, $statusTo);
 	}
 
@@ -56,6 +58,10 @@ class SubscriptionManager extends Manager
         $subscribableRepository = SubscribableRepository::instance();
         $userId = $order['user_id'];
         $orderId = $order['order_id'];
+
+        if (empty($order['products'])) {
+            return;
+        }
 
         foreach ($order['products'] as &$product) {
             $productId = $product['product_id'];
@@ -77,7 +83,7 @@ class SubscriptionManager extends Manager
                 if (empty($subscribableLink)) {
                     throw new Exception('Unable to fetch subscribable link for option');
                 }
-                $planId = $subscribableLink['planId'];
+                $planId = $subscribableLink->getPlanId();
 
                 // @TODO the question is: to assume or not to assume one subscription per product?
                 $product['subscription'] = $this->getRepository()->findOne(array(
@@ -101,6 +107,7 @@ class SubscriptionManager extends Manager
     /**
      * @param $orderInfo
      * @param null $status
+     * @return bool
      * @throws Exception
      */
     public function processOrder($orderInfo, $status = null)
@@ -148,7 +155,7 @@ class SubscriptionManager extends Manager
                     throw new Exception('Unable to fetch subscribable link for option');
                 }
 
-                $plan = $planRepository->findOneById($subscribableLink['planId']);
+                $plan = $planRepository->findOneById($subscribableLink->getPlanId());
                 if (!$plan instanceof Plan) {
                     throw new Exception('Unable to fetch plan from subscribable link');
                 }
@@ -181,11 +188,12 @@ class SubscriptionManager extends Manager
                             throw new Exception('Unable to create subscription for order ' . $orderId);
                         }
                         $subscription = $subscriptionRepository->findOneById($subscriptionId);
-                        CycleManager::instance()->begin($subscription, $initialPaidPeriod);
+                        $this->begin($subscription, $initialPaidPeriod);
+                        fn_set_hook('adls_subscriptions_post_begin', $subscription, $product, $orderInfo);
                     } else {
                         // Activate existing subscription
-                        $subscription->activate();
-                        $subscriptionRepository->update($subscription);
+                        $this->resume($subscription);
+                        fn_set_hook('adls_subscriptions_post_resume', $subscription, $product, $orderInfo);
                     }
 
 
@@ -197,17 +205,103 @@ class SubscriptionManager extends Manager
                 } else {
                     // If order payment failed, inactivate the subscription
                     if (!empty($subscription)) {
+                        // @TODO: maybe call suspend() instead
                         if (!$subscription->isInactive()) {
                             $subscription->inactivate();
                             $subscriptionRepository->update($subscription);
+                            fn_set_hook('adls_subscriptions_post_fail', $subscription, $product, $orderInfo);
                         }
                     }
                 }
 
             }
         }
+
+        return true;
     }
 
+
+    /**
+     * Activates/configures a new subscription
+     *
+     * @param Subscription $subscription
+     * @param integer $initialPaidPeriod Initial paid period, number of months
+     * @return bool
+     */
+    public function begin(Subscription $subscription, $initialPaidPeriod = null)
+    {
+        $planId = $subscription->getPlanId();
+        $subscriptionRepository = SubscriptionRepository::instance();
+        $planRepository = PlanRepository::instance();
+        $plan = $planRepository->findOneById($planId);
+
+        $subscription->setStartDate(new \DateTime());
+        $subscription->setEndDate(new \DateTime());
+        if (!empty($initialPaidPeriod)) {
+            $paidCycles = $initialPaidPeriod / $plan->getCycle();
+            $subscription->payCycle($paidCycles);
+            $subscription->getEndDate()->modify('+ ' . $initialPaidPeriod . ' months');
+        } else {
+            $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
+            $subscription->payCycle();
+        }
+
+        $subscription->activate();
+        return $subscriptionRepository->update($subscription);
+    }
+
+    /**
+     * Resume / reactivate existing subscription
+     *
+     * @param Subscription $subscription
+     * @return bool
+     */
+    public function resume(Subscription $subscription)
+    {
+        $subscription->activate();
+        $result = $this->repository->update($subscription);
+
+        return $result;
+    }
+
+    /**
+     * Suspends a past-due subscription
+     *
+     * @param Subscription $subscription
+     * @return bool
+     * @throws Exception
+     * @throws \Tygh\Exceptions\DeveloperException
+     */
+    public function suspend(Subscription $subscription)
+    {
+        $subscriptionRepository = SubscriptionRepository::instance();
+
+        $subscription->elapseCycle();
+        $subscription->inactivate();
+
+
+        // Change order status to Expired (A)
+        $order = fn_get_order_info($subscription->getOrderId());
+        if (empty($order)) {
+            throw new Exception('Failed while suspending subscription: order not found');
+        }
+
+        $settings = Utils::instance()->getSettings();
+
+        $statusTo = $settings['order_status_on_suspend'];
+        $orderId = $subscription->getOrderId();
+        $forceNotification = array();
+
+        if (defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
+            $forceNotification = array('C' => false, 'A' => false, 'V' => false);
+        }
+        fn_change_order_status($orderId, $statusTo, $statusFrom = '', $forceNotification, $placeOrder = false);
+
+
+        fn_set_hook('adls_subscriptions_post_suspend', $subscription);
+
+        return $subscriptionRepository->update($subscription);
+    }
 
     /**
      * @param Subscription $subscription

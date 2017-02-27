@@ -30,12 +30,12 @@ class SubscribableRepository extends EntityRepository
 	 */
 	public function create($planId, $objectId, $objectType)
 	{
-		$date = new \DateTime();
+		$date = Utils::instance()->getCurrentDate();
 
         $link = $this->findOneByObject($objectId, $objectId);
 
         if (!empty($link)) {
-            return $link['id'];
+            return $link->getId();
         }
 
 		$data = array(
@@ -50,6 +50,28 @@ class SubscribableRepository extends EntityRepository
 		$id = db_query($query);
 
 		return $id;
+	}
+
+	/**
+	 * Update subscribable
+	 *
+	 * @param $subscribable Subscribable
+	 *
+	 * @return bool|int
+	 */
+	public function update(Subscribable $subscribable)
+	{
+		$date = Utils::instance()->getCurrentDate();
+
+        $subscribable
+            ->setUpdatedAt($date);
+
+        $data = $subscribable->toArray();
+
+        $query = db_quote('UPDATE ?p SET ?u WHERE id = ?i', $this->table, $data, $subscribable->getId());
+		$result = db_query($query);
+
+		return $result;
 	}
 
 	/**
@@ -92,6 +114,10 @@ class SubscribableRepository extends EntityRepository
 			return null;
 		}
 
+        foreach ($items as $k => $v) {
+            $items[$k] = new Subscribable($v);
+        }
+
 		if (isset($params['one'])) {
 			$items = !empty($items) ? reset($items) : null;
 		}
@@ -116,7 +142,7 @@ class SubscribableRepository extends EntityRepository
 	 * @param $objectId
 	 * @param $objectType
 	 *
-	 * @return array|null
+	 * @return Subscribable|null
 	 *
 	 */
 	public function findOneByObject($objectId, $objectType)
@@ -124,6 +150,19 @@ class SubscribableRepository extends EntityRepository
 		return $this->findOne(array(
 			'objectId' => $objectId,
 			'objectType' => $objectType
+		));
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return Subscribable|null
+	 *
+	 */
+	public function findOneById($id)
+	{
+		return $this->findOne(array(
+			'id' => $id,
 		));
 	}
 }

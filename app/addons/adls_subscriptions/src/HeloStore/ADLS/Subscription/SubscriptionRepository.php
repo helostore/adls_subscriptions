@@ -13,6 +13,8 @@
  */
 namespace HeloStore\ADLS\Subscription;
 
+use Tygh\Registry;
+
 class SubscriptionRepository extends EntityRepository
 {
 	protected $table = '?:adlss_subscriptions';
@@ -31,7 +33,7 @@ class SubscriptionRepository extends EntityRepository
 	 */
 	public function create($userId, $planId, $orderId, $itemId, $productId, $companyId)
 	{
-		$date = new \DateTime();
+		$date = Utils::instance()->getCurrentDate();
 
 		$neverExpires = 0;
 
@@ -57,9 +59,11 @@ class SubscriptionRepository extends EntityRepository
 		return $subscriptionId;
 	}
 
-	/**
-	 * @param Subscription $subscription
-	 */
+    /**
+     * @param Subscription $subscription
+     *
+     * @return bool
+     */
 	public function update(Subscription $subscription)
 	{
 		$subscription->setUpdatedAt(new \DateTime());
@@ -67,8 +71,10 @@ class SubscriptionRepository extends EntityRepository
 		$data['updatedAt'] = Utils::instance()->getCurrentDate()->format('Y-m-d H:i:s');
         $query = db_quote('UPDATE ' . $this->table . ' SET ?u WHERE id = ?d', $data, $subscription->getId());
 		$result = db_query($query);
-
+        // $result is unreliable, it returns false when the data didn't changed
 //		return $result;
+
+        return true;
 	}
 
 	/**
@@ -78,41 +84,105 @@ class SubscriptionRepository extends EntityRepository
 	 */
 	public function find($params = array())
 	{
-		$condition = array();
-		if (isset($params['id'])) {
-			$condition[] = db_quote('id = ?n', $params['id']);
-		}
+        // Set default values to input params
+        $defaultParams = array (
+            'page' => 1,
+            'items_per_page' => 0
+        );
 
+        $params = array_merge($defaultParams, $params);
+
+        $sortingFields = array (
+            'id' => "subscription.id",
+            'status' => "subscription.status",
+            'startDate' => "subscription.startDate",
+            'endDate' => "subscription.endDate",
+            'customer' => array("user.lastname", "user.firstname"),
+            'product' => "productDesc.product",
+            'orderId' => "subscription.orderId",
+            'price' => "orderItem.price",
+            'neverExpires' => "subscription.neverExpires",
+            'paidCycles' => "subscription.paidCycles",
+            'elapsedCycles' => "subscription.elapsedCycles",
+            'updatedAt' => "subscription.updatedAt",
+            'createdAt' => "subscription.createdAt",
+        );
+        $sorting = db_sort($params, $sortingFields, 'updatedAt', 'desc');
+
+		$condition = array();
+        $joins = array();
+        $fields = array();
+        $fields[] = 'subscription.*';
+        $langCode = !empty($params['langCode']) ? $params['langCode'] : CART_LANGUAGE;
+
+        if (isset($params['id'])) {
+			$condition[] = db_quote('subscription.id = ?n', $params['id']);
+		}
         if (isset($params['userId'])) {
-            $condition[] = db_quote('userId = ?n', $params['userId']);
+            $condition[] = db_quote('subscription.userId = ?n', $params['userId']);
         }
         if (isset($params['planId'])) {
-            $condition[] = db_quote('planId = ?n', $params['planId']);
+            $condition[] = db_quote('subscription.planId = ?n', $params['planId']);
         }
         if (isset($params['orderId'])) {
-            $condition[] = db_quote('orderId = ?n', $params['orderId']);
+            $condition[] = db_quote('subscription.orderId = ?n', $params['orderId']);
         }
         if (isset($params['itemId'])) {
-            $condition[] = db_quote('itemId = ?s', $params['itemId']);
+            $condition[] = db_quote('subscription.itemId = ?s', $params['itemId']);
         }
         if (isset($params['productId'])) {
-            $condition[] = db_quote('productId = ?n', $params['productId']);
+            $condition[] = db_quote('subscription.productId = ?n', $params['productId']);
         }
         if (isset($params['status'])) {
-            $condition[] = db_quote('status = ?s', $params['status']);
+            $condition[] = db_quote('subscription.status = ?s', $params['status']);
         }
+		if (isset($params['extended'])) {
+            $joins[] = db_quote('LEFT JOIN ?:users AS user ON user.user_id = subscription.userId');
+            $fields[] = 'user.user_id AS user$id';
+            $fields[] = 'user.email AS user$email';
+            $fields[] = 'user.firstname AS user$firstName';
+            $fields[] = 'user.lastname AS user$lastName';
+
+            $joins[] = db_quote('LEFT JOIN ?:adlss_plans AS plan ON plan.id = subscription.planId');
+            $fields[] = 'plan.id AS plan$id';
+            $fields[] = 'plan.name AS plan$name';
+            $fields[] = 'plan.cycle AS plan$cycle';
+
+            $joins[] = db_quote('LEFT JOIN ?:product_descriptions AS productDesc 
+                ON productDesc.product_id = subscription.productId 
+                AND productDesc.lang_code = ?s'
+                , $langCode
+            );
+            $fields[] = 'productDesc.product_id AS product$id';
+            $fields[] = 'productDesc.product AS product$name';
+
+            $joins[] = db_quote('LEFT JOIN ?:order_details AS orderItem 
+                ON orderItem.item_id = subscription.itemId 
+                AND orderItem.order_id = subscription.orderId'
+            );
+            $fields[] = 'orderItem.price AS orderItem$price';
+		}
+
+        $joins = empty($joins) ? '' : implode(' ', $joins);
+        $fields = empty($fields) ? 'subscription.*' : implode(', ', $fields);
+		$condition = !empty($condition) ? ' WHERE ' . implode(' AND ', $condition) . '' : '';
+
 
         $limit = '';
         if (isset($params['one'])) {
             $limit = 'LIMIT 0,1';
+        } else if (!empty($params['items_per_page'])) {
+            $query = db_quote('SELECT COUNT(DISTINCT subscription.id) FROM ?p AS subscription ?p ?p ?p', $this->table, $joins, $condition, $limit);
+            $params['total_items'] = db_get_field($query);
+            $limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
         }
 
-		$condition = !empty($condition) ? ' WHERE ' . implode(' AND ', $condition) . '' : '';
-		$query = db_quote('SELECT * FROM ?p ?p ?p', $this->table, $condition, $limit);
+		$query = db_quote('SELECT ?p FROM ?p AS subscription ?p ?p ?p ?p', $fields, $this->table, $joins, $condition, $sorting, $limit);
 
 		$items = db_get_array($query);
+
 		if (empty($items)) {
-			return null;
+			return array(null, $params);
 		}
 
 		foreach ($items as $k => $v) {
@@ -123,7 +193,7 @@ class SubscriptionRepository extends EntityRepository
 			$items = !empty($items) ? reset($items) : null;
 		}
 
-		return $items;
+		return array($items, $params);
 	}
 
 	/**
@@ -143,7 +213,7 @@ class SubscriptionRepository extends EntityRepository
 	/**
 	 * @param $orderId
 	 *
-	 * @return Subscription|Subscription[]|null
+	 * @return Subscription[]|null
 	 */
 	public function findByOrder($orderId)
 	{
@@ -160,8 +230,9 @@ class SubscriptionRepository extends EntityRepository
 	public function findOne($params = array())
 	{
 		$params['one'] = true;
+        list($subscription, ) = $this->find($params);
 
-		return $this->find($params);
+		return $subscription;
 	}
 
 	/**
@@ -176,5 +247,16 @@ class SubscriptionRepository extends EntityRepository
 		));
 	}
 
-
+	/**
+	 * @param $orderId
+	 *
+	 * @return Subscription[]|null
+	 */
+	public function findOneByOrderItem($orderId, $itemId)
+	{
+		return $this->findOne(array(
+			'orderId' => $orderId,
+			'itemId' => $itemId
+		));
+	}
 }

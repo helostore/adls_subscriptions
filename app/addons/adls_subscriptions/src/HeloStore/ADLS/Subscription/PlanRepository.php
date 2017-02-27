@@ -27,7 +27,7 @@ class PlanRepository extends EntityRepository
 	 */
 	public function create($name, $cycle)
 	{
-		$date = new \DateTime();	
+		$date = Utils::instance()->getCurrentDate();
 
 		$data = array(
 			'name' => $name,
@@ -62,11 +62,17 @@ class PlanRepository extends EntityRepository
 	{
 		$condition = array();
 		if (isset($params['id'])) {
-			$condition[] = db_quote('id = ?n', $params['id']);
+			$condition[] = db_quote('plan.id = ?n', $params['id']);
 		}
+
+		if (!empty($params['status'])) {
+			$params['status'] = is_array($params['status']) ? $params['status'] : array($params['status']);
+			$condition[] = db_quote('plan.status IN (?a)', $params['status']);
+		}
+
 		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
 
-		$query = db_quote('SELECT * FROM ?p ?p LIMIT 0,1', $this->table, $condition);
+		$query = db_quote('SELECT * FROM ?p AS plan ?p', $this->table, $condition);
 
 
 		$items = db_get_array($query);

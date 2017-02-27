@@ -233,6 +233,14 @@ class Subscription extends Entity
     /**
      * @return string
      */
+    public function getStatusLabel()
+    {
+        return __('adlss.subscription.status.' . strtolower($this->status));
+    }
+
+    /**
+     * @return string
+     */
     public function getStatus()
     {
         return $this->status;
@@ -250,6 +258,13 @@ class Subscription extends Entity
         return $this;
     }
 
+    /**
+     * @return bool
+     */
+    public function hasStartDate()
+    {
+        return !empty($this->startDate);
+    }
     /**
      * @return \DateTime
      */
@@ -270,6 +285,13 @@ class Subscription extends Entity
         return $this;
     }
 
+    /**
+     * @return bool
+     */
+    public function hasEndDate()
+    {
+        return !empty($this->endDate);
+    }
     /**
      * @return \DateTime
      */
@@ -514,8 +536,7 @@ class Subscription extends Entity
         // discard seconds in comparison (for testing purposes)
         Utils::instance()->discardSeconds($now);
         Utils::instance()->discardSeconds($endDate);
-//        aa($endDate->format('Y-m-d H:i:s') . ' <= ' . $now->format('Y-m-d H:i:s') . ' = `' . (int)($endDate <= $now).'`');
-
+        
         return ($endDate <= $now);
     }
 

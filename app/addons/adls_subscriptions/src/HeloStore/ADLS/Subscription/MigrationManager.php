@@ -26,7 +26,8 @@ class MigrationManager extends Manager
         $subscriptionManager = SubscriptionManager::instance();
         $subscriptionRepository = SubscriptionRepository::instance();
         $orderId = $order['order_id'];
-        $subscriptions = $subscriptionRepository->findByOrder($orderId);
+        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
+
         if (!empty($subscriptions)) {
             aa('Order ' . $orderId . ' has ' . count($subscriptions) . ' subscriptions, skipping..');
             return;
@@ -34,19 +35,27 @@ class MigrationManager extends Manager
 
 //        $order = fn_get_order_info($order['order_id']);
         $order = fn_get_order_info($order['order_id']);
-
         $this->updateOrderProducts($order);
+        $order['prev_status'] = 'O';
         $subscriptionManager->processOrder($order);
 
-        $subscriptions = $subscriptionRepository->findByOrder($orderId);
+        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
         if (empty($subscriptions)) {
-            aa('No subscriptions generated for order ' . $orderId . '');
+            aa('Fail. No subscriptions generated for order ' . $orderId . '');
             return;
         }
         aa('Order ' . $orderId . ' generated ' . count($subscriptions) . ' subscriptions');
-        aa('Sending alert about the migration..');
+        aa('Sending alert about the migration.. (STUB)');
 
     }
+
+    /**
+     * Update products in cart by adding default options to them, so that default subscription will apply
+     *
+     * @param $order
+     * @return mixed
+     * @throws \Exception
+     */
 	public function updateOrderProducts($order)
 	{
         $initialOrder = $order;
@@ -116,7 +125,7 @@ class MigrationManager extends Manager
 
 
         if ($initialOrderTotal == 0) {
-            $cart['total'] = 0;;
+            $cart['total'] = 0;
         }
 
         $action = 'save';

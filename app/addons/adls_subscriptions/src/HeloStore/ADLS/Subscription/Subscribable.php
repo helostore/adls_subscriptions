@@ -23,7 +23,6 @@ class Subscribable extends Entity
      * @var array
      */
     protected $_fieldsMap = array(
-        'planId' => 'id'
     );
 
 	/**

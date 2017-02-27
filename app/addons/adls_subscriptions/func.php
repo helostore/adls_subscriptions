@@ -23,6 +23,58 @@ if (!defined('BOOTSTRAP')) { die('Access denied'); }
  * Hooks
  */
 
+function fn_adls_subscriptions_get_product_files_post($params, $files)
+{
+    $productId = $params['product_id'];
+    $orderId = $params['order_id'];
+}
+
+/**
+ * @TODO : move in ADLS, it's dependent by releases
+ *
+ * @param $params
+ * @param $fields
+ * @param $join
+ * @param $condition
+ */
+function fn_adls_subscriptions_get_product_files_before_select($params, &$fields, &$join, &$condition)
+{
+
+//    return;
+//    $productId = $params['product_id'];
+//    $orderId = $params['order_id'];
+//
+//    $join .= db_quote('
+//        LEFT JOIN cscart_adls_releases AS releases
+//            ON cscart_product_files.file_id = releases.fileId
+//
+//        LEFT JOIN cscart_adlss_subscriptions AS subscription
+//            ON subscription.orderId = ?n
+//            AND subscription.productId = cscart_product_files.product_id
+//    ', $orderId);
+//
+//    $fields[] = 'subscription.id AS subscriptionId';
+//    $fields[] = 'subscription.startDate AS subscriptionStartDate';
+//    $fields[] = 'subscription.endDate AS subscriptionEndDate';
+//    $fields[] = 'releases.createdAt AS releaseDate';
+//    $fields[] = 'releases.id AS releaseId';
+//
+//    $condition .= db_quote(' AND
+//        (
+//            (
+//                subscription.id IS NOT NULL
+//                AND releases.id IS NOT NULL
+//                AND (
+//                    releases.createdAt <= subscription.endDate
+//                    AND releases.createdAt >= subscription.startDate
+//                )
+//
+//            )
+//        )
+//
+//    ');
+}
+
 /**
  * @param $option_id
  * @param $product_id

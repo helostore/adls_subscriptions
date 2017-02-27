@@ -144,4 +144,13 @@ class Plan extends Entity
 
 		return $this;
 	}
+
+	/**
+	 * Helpers
+	 */
+
+	public function __toString()
+	{
+		return $this->getName();
+	}
 }

@@ -47,14 +47,17 @@ class SubscribableManager extends Manager
 
     public function onGetProductOptionDataPre($optionId, $productId, &$fields, $condition, &$join, $extraVariantFields, $langCode)
     {
-        $join .= db_quote(' LEFT JOIN ?p AS subscribable 
-            ON subscribable.objectType = ?s 
-            AND subscribable.objectId = a.option_id',
+        $join .= db_quote(' 
+                LEFT JOIN ?p AS subscribable 
+                    ON subscribable.objectType = ?s 
+                    AND subscribable.objectId = a.option_id
+            ',
             $this->getRepository()->getTable(),
             Subscribable::OBJECT_TYPE_PRODUCT_OPTION
         );
 
         $fields .= ', subscribable.id AS subscribableId';
+        $fields .= ', subscribable.planId AS planId';
 
         return true;
     }
@@ -81,6 +84,8 @@ class SubscribableManager extends Manager
 //                aa($variant);
             }
         }
+
+        return true;
     }
 
 
@@ -100,5 +105,52 @@ class SubscribableManager extends Manager
     public function isSubscribable($object)
     {
         return (!empty($object) && !empty($object['subscribableId']));
+    }
+
+    /**
+     * @param $subscribableId
+     * @param $planId
+     * @return bool|null
+     */
+    public function updateProductOption($subscribableId, $planId)
+    {
+        $subscribable = $this->repository->findOneById($subscribableId);
+
+        if (empty($subscribable)) {
+            return null;
+        }
+
+        if ($subscribable->getPlanId() == $planId) {
+            return null;
+        }
+        $subscribable->setPlanId($planId);
+
+        return $this->repository->update($subscribable);
+    }
+    /**
+     * @param $optionId
+     * @param $planId
+     * @return bool|int
+     */
+    public function linkProductOption($optionId, $planId)
+    {
+        $objectId = $optionId;
+        $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
+
+        return $this->repository->create($planId, $objectId, $objectType);
+    }
+
+    /**
+     * Remove link between a product option and a plan (ie. make object no longer subscribable)
+     *
+     * @param $optionId
+     * @return bool|int
+     */
+    public function unlinkProductOption($optionId)
+    {
+        $objectId = $optionId;
+        $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
+        
+        return $this->repository->delete($objectId, $objectType);
     }
 }
