@@ -38,7 +38,7 @@ Sizes: [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="format-detection" content="telephone=no" /> <!-- disable auto telephone linking in iOS -->
-    <title>Respmail is a response HTML email designed to work on all major email platforms and smartphones</title>
+    <title>HELOstore Subscriptions</title>
     <style type="text/css">
         {literal}
         /* RESET STYLES */
@@ -227,7 +227,7 @@ Sizes: [
                                                                     <tr>
                                                                         <td align="left" class="textContent">
                                                                             <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
-                                                                                {$alert.exerpt}
+                                                                                {$alert.excerpt}
                                                                             </div>
                                                                         </td>
                                                                     </tr>

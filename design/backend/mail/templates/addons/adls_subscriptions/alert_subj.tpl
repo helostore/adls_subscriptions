@@ -1,1 +1,1 @@
-Alert: {$alert.subject}
+{$alert.subject}

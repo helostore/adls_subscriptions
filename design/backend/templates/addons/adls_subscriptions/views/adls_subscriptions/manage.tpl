@@ -17,8 +17,8 @@
     {/if}
 
     {capture name="sidebar"}
-        {include file="common/saved_search.tpl" dispatch="adls_subscriptions.manage" view_type="subscriptions"}
-        {include file="addons/adls_subscriptions/views/adls_subscriptions/components/search_form.tpl" dispatch="adls_subscriptions.manage"}
+        {include file="common/saved_search.tpl" dispatch="adlss_subscriptions.manage" view_type="subscriptions"}
+        {include file="addons/adls_subscriptions/views/adls_subscriptions/components/search_form.tpl" dispatch="adlss_subscriptions.manage"}
     {/capture}
 
     <form action="{""|fn_url}" method="post" target="_self" name="subscriptions_list_form">
@@ -52,18 +52,19 @@
                         {include file="common/check_items.tpl" check_statuses=$order_status_descr}
                     </th>
                     <th width="5%">{tableHeadLink label="id" sortBy="id"}</th>
-                    <th width="17%">{tableHeadLink label="order" sortBy="orderId"}</th>
+                    <th width="5%">{tableHeadLink label="order" sortBy="orderId"}</th>
                     <th width="17%">{tableHeadLink label="customer" sortBy="customer"}</th>
                     <th width="17%">{tableHeadLink label="product" sortBy="product$name"}</th>
-                    <th width="17%">{tableHeadLink label="price" sortBy="price"}</th>
+                    <th width="5%">{tableHeadLink label="price" sortBy="price"}</th>
                     <th width="10%">{tableHeadLink label="status" sortBy="status"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.startDate" sortBy="startDate"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.endDate" sortBy="endDate"}</th>
+                    <th width="17%">{tableHeadLink label="adlss.plan" sortBy='plan$name'}</th>
+                    <th width="10%">{tableHeadLink label="adlss.startDate" sortBy="startDate"}</th>
+                    <th width="10%">{tableHeadLink label="adlss.endDate" sortBy="endDate"}</th>
                     <th width="17%">{tableHeadLink label="adlss.neverExpires" sortBy="neverExpires"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.paidCycles" sortBy="paidCycles"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.elapsedCycles" sortBy="elapsedCycles"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.updatedAt" sortBy="updatedAt"}</th>
-                    <th width="17%">{tableHeadLink label="adlss.createdAt" sortBy="createdAt"}</th>
+                    <th width="5%">{tableHeadLink label="adlss.paidCycles" sortBy="paidCycles"}</th>
+                    <th width="5%">{tableHeadLink label="adlss.elapsedCycles" sortBy="elapsedCycles"}</th>
+                    <th width="5%">{tableHeadLink label="adlss.updatedAt" sortBy="updatedAt"}</th>
+                    <th width="5%">{tableHeadLink label="adlss.createdAt" sortBy="createdAt"}</th>
 
                     {hook name="adls_subscriptions:manage_header"}{/hook}
 
@@ -76,8 +77,7 @@
                             <td class="left">
                                 <input type="checkbox" name="ids[]" value="{$subscription->getId()}" class="cm-item cm-item-status-{$subscription->getStatus()|lower}" /></td>
                             <td>
-                                <a href="{"orders.details?order_id=`$subscription->getId()`"|fn_url}" class="underlined">#{$subscription->getId()}</a>
-                                {include file="views/companies/components/company_name.tpl" object=$subscription}
+                                #{$subscription->getId()}
                             </td>
 
                             <td>
@@ -110,18 +110,22 @@
                                 {*{include file="common/select_popup.tpl" suffix="o" order_info=$subscription id=$subscription->getId() status=$subscription->getStatus() items_status=$order_status_descr update_controller="orders" notify=true notify_department=true notify_vendor=$notify_vendor status_target_id="orders_total,`$rev`" extra="&return_url=`$extra_status`" statuses=$order_statuses btn_meta="btn btn-info o-status-`$subscription->status` btn-small"|lower}*}
                             </td>
                             <td>
+                                <a href="{"adls_plans.update?id=`$subscription->extra['plan$id']`"|fn_url}" target="_blank">{$subscription->extra['plan$name']}</a>
+                            </td>
+                            <td colspan="2" class="center">
                                 {if $subscription->hasStartDate()}
                                     {$subscription->getStartDate()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
                                 {else}
                                     &infin;
                                 {/if}
-                            </td>
-                            <td>
+                                &mdash;
                                 {if $subscription->hasEndDate()}
                                     {$subscription->getEndDate()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
                                 {else}
                                     &infin;
                                 {/if}
+                                <br>{$subscription->getRemainingTime()}
+
                             </td>
 
 

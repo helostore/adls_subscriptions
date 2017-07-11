@@ -41,8 +41,8 @@ msgid "Subscriptions"
 msgstr "Subscriptions"
 
 msgctxt "Languages::adlss.subscriptions.manage"
-msgid "Manage"
-msgstr "Manage"
+msgid "Subscriptions"
+msgstr "Subscriptions"
 
 msgctxt "Languages::adlss.startDate"
 msgid "Start"
@@ -116,3 +116,57 @@ msgstr "Subscription plan successfully removed from the updated object"
 msgctxt "Languages::adlss.subscribable.delete.fail"
 msgid ""
 msgstr "Subscription plan could not be removed to the updated object"
+
+
+
+msgctxt "Languages::adlss.plans"
+msgid "Plans"
+msgstr "Plans"
+
+msgctxt "Languages::adlss.plans.manage"
+msgid "Plans"
+msgstr "Plans"
+
+msgctxt "Languages::adlss.plan.new"
+msgid "New plan"
+msgstr "New plan"
+
+msgctxt "Languages::adlss.plan.edit"
+msgid "Edit plan"
+msgstr "Edit plan"
+
+msgctxt "Languages::adlss.plan.name"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "Languages::adlss.plan.cycle"
+msgid "Cycle"
+msgstr "Cycle (months)"
+
+msgctxt "Languages::adlss.plan.error.missing_fields"
+msgid ""
+msgstr "Please fill out all the required fields"
+
+msgctxt "Languages::adlss.plan.update.success"
+msgid ""
+msgstr "Plan updated"
+
+msgctxt "Languages::adlss.plan.update.error"
+msgid ""
+msgstr "Failed updating plan"
+
+msgctxt "Languages::adlss.plan.add.success"
+msgid ""
+msgstr "Plan created"
+
+msgctxt "Languages::adlss.plan.add.error"
+msgid ""
+msgstr "Failed creating plan"
+
+msgctxt "Languages::adlss.plan.delete.success"
+msgid ""
+msgstr "Plan delete"
+
+msgctxt "Languages::adlss.plan.delete.error"
+msgid ""
+msgstr "Failed deleting plan"
