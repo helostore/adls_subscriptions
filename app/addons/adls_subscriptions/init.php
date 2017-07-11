@@ -21,9 +21,9 @@ DEFINE('ADLS_SUBSCRIPTIONS_ADDON_PATH', __DIR__);
 
 fn_register_hooks(
     'get_product_option_data_pre'
-    , 'get_product_option_data_post'
     , 'change_order_status'
+    , 'place_order'
     , 'get_order_info'
-    , 'get_product_files_before_select'
-    , 'get_product_files_post'
+    , 'adls_api_license_pre_activation'
+    , 'delete_order'
 );

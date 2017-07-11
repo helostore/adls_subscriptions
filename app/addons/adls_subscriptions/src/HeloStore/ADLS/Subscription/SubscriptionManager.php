@@ -54,14 +54,14 @@ class SubscriptionManager extends Manager
 
     public function onGetOrderInfo(&$order, $additionalData)
     {
+        if (empty($order['products'])) {
+            return true;
+        }
+
         $subscribableManager = SubscribableManager::instance();
         $subscribableRepository = SubscribableRepository::instance();
         $userId = $order['user_id'];
         $orderId = $order['order_id'];
-
-        if (empty($order['products'])) {
-            return;
-        }
 
         foreach ($order['products'] as &$product) {
             $productId = $product['product_id'];
@@ -92,11 +92,42 @@ class SubscriptionManager extends Manager
                     'orderId' => $orderId,
                     'itemId' => $itemId,
                     'productId' => $productId,
+                    'extended' => true
                 ));
             }
             unset($option);
         }
         unset($product);
+
+        return true;
+    }
+
+    public function onPlaceOrder($orderId, $action, $orderStatus, $cart, $auth)
+    {
+
+        // If we're editing an order and an item's options have changed, its item_id will change too
+        // So update item ID in relevant subscriptions
+        $subscribableRepository = SubscribableRepository::instance();
+        foreach ($cart['products'] as $itemId => $item) {
+            $prevItemId = $itemId;
+            if (!empty($item['original_product_data']) && !empty($item['original_product_data']['cart_id'])) {
+                $prevItemId = $item['original_product_data']['cart_id'];
+            }
+            if ($itemId == $prevItemId) {
+                continue;
+            }
+
+            $productId = $item['product_id'];
+            if (!$subscribableRepository->isProductSubscribable($productId)) {
+                continue;
+            }
+            $subscription = $this->repository->findOneByOrderItem($orderId, $prevItemId);
+            if (empty($subscription)) {
+                continue;
+            }
+            $subscription->setItemId($itemId);
+            $this->repository->update($subscription);
+        }
     }
 
 
@@ -147,9 +178,21 @@ class SubscriptionManager extends Manager
                 $objectId = $option['option_id'];
                 $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
 
-                // @TODO add a field for days in option-variant, and replace `position` functionality
-                $initialPaidPeriod = $option['position']; // months
+                $defaultVariant = reset($productOption['variants']);
+                if (empty($defaultVariant)) {
+                    throw new Exception('Unable to fetch default option variant');
+                }
 
+                // Assume this is a variant ID
+                if (!empty($option['value'])) {
+                    $variantId = $option['value'];
+                    $variant = $productOption['variants'][$variantId];
+                } else {
+                    $variant = $defaultVariant;
+                }
+
+                // @TODO add a field for days in option-variant, and replace `position` functionality
+                $initialPaidPeriod = $variant['position']; // months
                 $subscribableLink = $subscribableRepository->findOneByObject($objectId, $objectType);
                 if (empty($subscribableLink)) {
                     throw new Exception('Unable to fetch subscribable link for option');
@@ -234,9 +277,9 @@ class SubscriptionManager extends Manager
         $subscriptionRepository = SubscriptionRepository::instance();
         $planRepository = PlanRepository::instance();
         $plan = $planRepository->findOneById($planId);
-
-        $subscription->setStartDate(new \DateTime());
-        $subscription->setEndDate(new \DateTime());
+        $utils = Utils::instance();
+        $subscription->setStartDate($utils->getCurrentDate());
+        $subscription->setEndDate($utils->getCurrentDate());
         if (!empty($initialPaidPeriod)) {
             $paidCycles = $initialPaidPeriod / $plan->getCycle();
             $subscription->payCycle($paidCycles);
@@ -245,8 +288,8 @@ class SubscriptionManager extends Manager
             $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
             $subscription->payCycle();
         }
-
         $subscription->activate();
+
         return $subscriptionRepository->update($subscription);
     }
 
@@ -346,21 +389,35 @@ class SubscriptionManager extends Manager
 
 //        $template = 'addons/adls_subscriptions/alerts/' . $alert['template'];
         $template = 'addons/adls_subscriptions/alert.tpl';
-        if (defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
-            return true;
+
+        if (!defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
+            $result = Mailer::sendMail(array(
+                'to' => $user['email'],
+                'from' => 'company_orders_department',
+                'reply_to' => 'company_orders_department',
+                'data' => array(
+                    'subscription' => $subscription,
+                    'alert' => $alert,
+                ),
+                'tpl' => $template,
+                'company_id' => $companyId,
+            ), 'A', $order['lang_code']);
+        } else {
+            $result = 'dry_run';
         }
 
-        $result = Mailer::sendMail(array(
-            'to' => $user['email'],
-            'from' => 'company_orders_department',
-            'reply_to' => 'company_orders_department',
-            'data' => array(
-                'subscription' => $subscription,
-                'alert' => $alert,
-            ),
-            'tpl' => $template,
-            'company_id' => $companyId,
-        ), 'A', $order['lang_code']);
+        if (class_exists('\\HeloStore\\ADLS\\Logger')) {
+            \HeloStore\ADLS\Logger::instance()->log(
+                $_REQUEST
+                , $_SERVER
+                , \HeloStore\ADLS\Logger::OBJECT_TYPE_SUBSCRIPTION_ALERT
+                , 'send'
+                , array(
+                    'result' => $result
+                    , 'subscription' => $subscription
+                    , 'alert' => json_encode($alert)
+            ));
+        }
 
         return $result;
     }

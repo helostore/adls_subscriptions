@@ -17,6 +17,10 @@ $schema['central']['adlss.subscriptions'] = array(
 		'adlss.subscriptions.manage' => array(
 			'href' => 'adls_subscriptions.manage',
 			'position' => 50
+		),
+		'adlss.plans.manage' => array(
+			'href' => 'adls_plans.manage',
+			'position' => 20
 		)
 	),
 	'position' => 900,

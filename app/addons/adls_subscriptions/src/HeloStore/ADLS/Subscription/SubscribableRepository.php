@@ -102,7 +102,8 @@ class SubscribableRepository extends EntityRepository
 			$condition[] = db_quote('objectType = ?s', $params['objectType']);
 
 			if (isset($params['objectId'])) {
-				$condition[] = db_quote('objectId = ?n', $params['objectId']);
+				$params['objectId'] = is_array($params['objectId']) ? $params['objectId'] : array($params['objectId']);
+				$condition[] = db_quote('objectId IN (?a)', $params['objectId']);
 			}
 		}
 
@@ -165,4 +166,30 @@ class SubscribableRepository extends EntityRepository
 			'id' => $id,
 		));
 	}
+
+    public function findProductSubscribableOptions($productId)
+    {
+        $query = db_quote('
+            SELECT po.*
+            FROM ?:product_options AS po 
+            LEFT JOIN ?:product_global_option_links AS gpo ON gpo.option_id = po.option_id AND gpo.product_id = ?i
+            LEFT JOIN ?p AS sl ON sl.objectType = ?s AND sl.objectId = po.option_id
+            WHERE 
+                (po.product_id = ?i OR gpo.product_id = ?i)
+                AND sl.id IS NOT NULL
+            '
+            , $productId
+            , $this->getTable()
+            , Subscribable::OBJECT_TYPE_PRODUCT_OPTION
+            , $productId
+            , $productId
+        );
+        return db_get_fields($query);
+    }
+    public function isProductSubscribable($productId)
+    {
+        $subscribableOptionIds = $this->findProductSubscribableOptions($productId);
+
+        return !empty($subscribableOptionIds);
+    }
 }

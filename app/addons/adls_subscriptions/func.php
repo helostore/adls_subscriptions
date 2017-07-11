@@ -14,6 +14,7 @@
 
 use HeloStore\ADLS\Subscription\SubscribableManager;
 use HeloStore\ADLS\Subscription\SubscriptionManager;
+use HeloStore\ADLS\Subscription\SubscriptionRepository;
 use Tygh\Registry;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
@@ -23,56 +24,24 @@ if (!defined('BOOTSTRAP')) { die('Access denied'); }
  * Hooks
  */
 
-function fn_adls_subscriptions_get_product_files_post($params, $files)
+function fn_adls_subscriptions_delete_order($orderId)
 {
-    $productId = $params['product_id'];
-    $orderId = $params['order_id'];
+    $subscriptionRepository = SubscriptionRepository::instance();
+    list($subscriptions, ) = $subscriptionRepository->findByOrder($orderId);
+    foreach ($subscriptions as $subscription) {
+        $subscriptionRepository->delete($subscription);
+
+    }
 }
 
 /**
- * @TODO : move in ADLS, it's dependent by releases
- *
- * @param $params
- * @param $fields
- * @param $join
- * @param $condition
+ * @param $licenseId
+ * @param $orderId
+ * @param $productId
  */
-function fn_adls_subscriptions_get_product_files_before_select($params, &$fields, &$join, &$condition)
+function fn_adls_subscriptions_adls_api_license_pre_activation($licenseId, $orderId, $productId)
 {
 
-//    return;
-//    $productId = $params['product_id'];
-//    $orderId = $params['order_id'];
-//
-//    $join .= db_quote('
-//        LEFT JOIN cscart_adls_releases AS releases
-//            ON cscart_product_files.file_id = releases.fileId
-//
-//        LEFT JOIN cscart_adlss_subscriptions AS subscription
-//            ON subscription.orderId = ?n
-//            AND subscription.productId = cscart_product_files.product_id
-//    ', $orderId);
-//
-//    $fields[] = 'subscription.id AS subscriptionId';
-//    $fields[] = 'subscription.startDate AS subscriptionStartDate';
-//    $fields[] = 'subscription.endDate AS subscriptionEndDate';
-//    $fields[] = 'releases.createdAt AS releaseDate';
-//    $fields[] = 'releases.id AS releaseId';
-//
-//    $condition .= db_quote(' AND
-//        (
-//            (
-//                subscription.id IS NOT NULL
-//                AND releases.id IS NOT NULL
-//                AND (
-//                    releases.createdAt <= subscription.endDate
-//                    AND releases.createdAt >= subscription.startDate
-//                )
-//
-//            )
-//        )
-//
-//    ');
 }
 
 /**
@@ -91,17 +60,6 @@ function fn_adls_subscriptions_get_product_option_data_pre($option_id, $product_
     return SubscribableManager::instance()->onGetProductOptionDataPre($option_id, $product_id, $fields, $condition, $join, $extra_variant_fields, $lang_code);
 }
 
-/**
- * @param $opt
- * @param $product_id
- * @param $lang_code
- *
- * @return bool
- */
-function fn_adls_subscriptions_get_product_option_data_post(&$opt, $product_id, $lang_code)
-{
-    return SubscribableManager::instance()->onGetProductOptionDataPost($opt, $product_id, $lang_code);
-}
 
 /**
  * @param $status_to
@@ -120,6 +78,22 @@ function fn_adls_subscriptions_change_order_status($status_to, $status_from, $or
     return SubscriptionManager::instance()->onChangeOrderStatus($status_to, $status_from, $orderInfo, $force_notification, $order_statuses, $place_order);
 }
 
+/**
+ * @param $order_id
+ * @param $action
+ * @param $order_status
+ * @param $cart
+ * @param $auth
+ * @return bool|void
+ */
+function fn_adls_subscriptions_place_order($order_id, $action, $order_status, $cart, $auth)
+{
+    if (empty($cart['products'])) {
+        return false;
+    }
+
+    return SubscriptionManager::instance()->onPlaceOrder($order_id, $action, $order_status, $cart, $auth);
+}
 function fn_adls_subscriptions_get_order_info(&$order, $additional_data)
 {
     return SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);

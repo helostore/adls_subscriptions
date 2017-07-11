@@ -57,6 +57,47 @@ class Utils extends Singleton
 
         return $this;
     }
+
+    /**
+     * @param DateTime $x
+     * @param DateTime|null $y
+     * @param int $precision
+     * @return string
+     */
+    public function getDuration(\DateTime $x, \DateTime $y = null, $precision = 2)
+    {
+        if ($y === null) {
+            $y = $this->getCurrentDate();
+        }
+        $interval = $y->diff($x);
+        if (empty($interval)) {
+            return 'error';
+        }
+        $parts = array();
+        if ($interval->y > 0) {
+            $parts[] = sprintf('%s year(s)', $interval->y);
+        }
+        if ($interval->m > 0) {
+            $parts[] = sprintf('%s month(s)', $interval->m);
+        }
+        if ($interval->d > 0) {
+            $parts[] = sprintf('%s day(s)', $interval->d);
+        }
+        if ($interval->h > 0) {
+            $parts[] = sprintf('%s hour(s)', $interval->h);
+        }
+        if ($interval->i > 0) {
+            $parts[] = sprintf('%s minute(s)', $interval->i);
+        }
+
+        if (empty($parts)) {
+            return 'now';
+        }
+
+        $parts = array_slice($parts, 0, $precision);
+
+        return implode(' ', $parts);
+    }
     /**
      * @return DateTime
      */
@@ -77,6 +118,11 @@ class Utils extends Singleton
         return $date->setTime($date->format('H'), $date->format('i'), 0);
     }
 
+    public function createDateFromTimestamp($timestamp)
+    {
+        return \DateTime::createFromFormat('U', $timestamp);
+    }
+    
     public function getSettings()
     {
         return Registry::get('addons.adls_subscriptions');

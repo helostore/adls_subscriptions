@@ -14,10 +14,37 @@
 namespace HeloStore\ADLS\Subscription;
 
 
-class MigrationManager extends Manager
-{
+use Exception;
+use Tygh\Mailer;
 
-    public function migrate($order)
+class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
+{
+    public $optionId;
+
+    /**
+     * Assign subscribable option to product, as a global link
+     *
+     * @param $productId
+     * @param $optionId
+     * @return mixed
+     */
+    public function migrateProduct($productId, $optionId)
+    {
+        $result = db_query("REPLACE INTO ?:product_global_option_links (option_id, product_id) VALUES(?i, ?i)", $optionId, $productId);
+
+        if (fn_allowed_for('ULTIMATE')) {
+            fn_ult_share_product_option($optionId, $productId);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param $order
+     * @throws \Exception
+     */
+    public function migrateOrder($order)
     {
         if (!in_array($order['status'], array('P'))) {
             return;
@@ -29,7 +56,7 @@ class MigrationManager extends Manager
         list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
 
         if (!empty($subscriptions)) {
-            aa('Order ' . $orderId . ' has ' . count($subscriptions) . ' subscriptions, skipping..');
+            aa('Order #' . $orderId . ' has ' . count($subscriptions) . ' subscriptions, skipping..');
             return;
         }
 
@@ -37,16 +64,57 @@ class MigrationManager extends Manager
         $order = fn_get_order_info($order['order_id']);
         $this->updateOrderProducts($order);
         $order['prev_status'] = 'O';
-        $subscriptionManager->processOrder($order);
+//        $subscriptionManager->processOrder($order);
 
-        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
+        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId, array('extended' => true));
         if (empty($subscriptions)) {
-            aa('Fail. No subscriptions generated for order ' . $orderId . '');
+            aa('Warning: No subscriptions generated for order #' . $orderId);
             return;
         }
-        aa('Order ' . $orderId . ' generated ' . count($subscriptions) . ' subscriptions');
-        aa('Sending alert about the migration.. (STUB)');
+        $orderDate = Utils::instance()->createDateFromTimestamp($order['timestamp']);
+        $planRepository = PlanRepository::instance();
+        $now = Utils::instance()->getCurrentDate();
+        /** @var Subscription $subscription */
+//        foreach ($subscriptions as $subscription) {
+//            $plan = $planRepository->findOneById($subscription->getPlanId());
+//
+//            $subscription->setCreatedAt($orderDate);
+//            $startDate = clone $orderDate;
+//            $endDate = $now->modify('+1 year');
+//
+//            $elapsedInterval = $now->diff($startDate);
+//            $elapsedCycles = $elapsedInterval->y;
+//
+//            $elapsedCycles = $elapsedCycles / $plan->getCycle();
+//            $paidCycles = $elapsedCycles + 1;
+//
+//
+//            $subscription
+//                ->setCreatedAt($orderDate)
+//                ->payCycle($paidCycles)
+//                ->setStartDate($startDate)
+//                ->setEndDate($endDate);
+//
+//            $subscriptionRepository->update($subscription);
+//        }
 
+        // Refresh order data, missing required products may have been automatically added
+        $order = fn_get_order_info($order['order_id']);
+
+        aa('Order #' . $orderId . ' generated ' . count($subscriptions) . ' subscriptions for ' . count($order['products']) .' order items');
+        if (count($subscriptions) != count($order['products'])) {
+//            aa('Warning: unequal number of subscriptions!!!!!!!!!!!!!!!');
+        }
+        aa(' - sending alert about the migration..');
+
+        $result = $this->alert($order, $subscriptions);
+        if ($result == false) {
+            aa(' - failed');
+        } else {
+            aa(' - success: ' . $result);
+        }
+        sleep(5);
+        ob_flush();
     }
 
     /**
@@ -83,12 +151,14 @@ class MigrationManager extends Manager
         }
 
         if ($cart_status == md5(serialize($cart))) {
-            // Order info was not found or customer does not have enought permissions
+            // Order info was not found or customer does not have enough permissions
             throw new \Exception('Order info was not found or customer does not have enought permissions');
         }
         $cart['order_id'] = $order['order_id'];
 
-        foreach ($cart['products'] as $k => $product) {
+
+        $upgrade = false;
+        foreach ($cart['products'] as $k => &$product) {
 
             $cart['products'][$k]['stored_price'] = 'Y';
             if (!empty($initialOrder['products'][$k])) {
@@ -110,15 +180,33 @@ class MigrationManager extends Manager
             if (!isset($product['extra']['product_options'])) {
                 $cart['products'][$k]['extra']['product_options'] = array();
             }
+            if (isset($cart['products'][$k]['product_options'][$this->optionId])) {
+//                aa('Order #' . $cart['order_id'] . ', product #' . $product['product_id'] . ', item #' . $k . ' - already has subscribable option set, rewriting');
+            } else {
+//                aa('Order #' . $cart['order_id'] . ', product #' . $product['product_id'] . ', item #' . $k . ' - NO subscribable option set, setting');
+            }
+//            aa($productDefaultOptions);
+            $upgrade = true;
+//            $cart['products'][$k]['product_options'][$this->optionId] = $productDefaultOptions[$this->optionId];
+//            aa($product, 1);
+
             foreach ($productDefaultOptions as $optionId => $variantId) {
-                // Set default variant ID
-                if (empty($product['extra']['product_options'][$optionId])) {
-                    $cart['products'][$k]['extra']['product_options'][$optionId] = $variantId;
+                if (empty($variantId)) {
+                    continue;
                 }
+                // Set default variant ID
+//                if (empty($product['extra']['product_options'][$optionId])) {
+//                    $cart['products'][$k]['extra']['product_options'][$optionId] = $variantId;
+//                }
                 if (empty($product['product_options'][$optionId])) {
                     $cart['products'][$k]['product_options'][$optionId] = $variantId;
                 }
             }
+        }
+        unset($product);
+        if (!$upgrade) {
+            aa('Order #' . $cart['order_id'] . ', nothing to upgrade, skipping');
+            return true;
         }
 
         list ($cart_products, $product_groups) = fn_calculate_cart_content($cart, $customer_auth);
@@ -131,6 +219,7 @@ class MigrationManager extends Manager
         $action = 'save';
         $cart['notes'] = 'Order automatically migrated to subscription tier';
 
+        $cart['status'] = $initialStatus;
         list($order_id, $process_payment) = fn_place_order($cart, $customer_auth, $action, $order['user_id']);
 
         $currentStatus = db_get_field('SELECT status FROM ?:orders WHERE order_id = ?i', $order_id);
@@ -143,4 +232,66 @@ class MigrationManager extends Manager
 
         return $order;
 	}
+
+
+    /**
+     *
+     * @param $order
+     * @param $subscriptions
+     * @return bool
+     */
+    public function alert($order, $subscriptions)
+    {
+        $affectedProducts = count($subscriptions);
+
+        if (empty($affectedProducts)) {
+            return true;
+        }
+        $alert = array();
+        $alert['subject'] = $alert['title'] = 'Order #' . $order['order_id'] . ' updated';
+        $alert['subtitle'] = '';
+//        $alert['subtitle'] = 'This shouldn\'t affect the current state of your order.';
+//        $alert['subtitle'] = 'HELOstore is moving to subscription-based products.';
+//        $alert['subtitle'] = ($affectedProducts == 1 ? 'One item has' : $affectedProducts. ' items have') . ' been migrated to subscription tier.';
+        $alert['excerpt'] = 'Your order has been migrated to subscription tier';
+        $alert['template'] = 'migration.tpl';
+
+
+        $companyId = $order['company_id'];
+        $user = fn_get_user_info($order['user_id']);
+        $template = 'addons/adls_subscriptions/alert.tpl';
+
+        if (!defined('ADLS_SUBSCRIPTIONS_NO_EMAILS')) {
+            $result = Mailer::sendMail(array(
+                'to' => $user['email'],
+                'from' => 'company_orders_department',
+                'reply_to' => 'company_orders_department',
+                'data' => array(
+                    'alert' => $alert,
+                    'order' => $order,
+                    'subscriptions' => $subscriptions,
+                ),
+                'tpl' => $template,
+                'company_id' => $companyId,
+            ), 'A', $order['lang_code']);
+
+        } else {
+            $result = 'dry_run';
+        }
+
+        if (class_exists('\\HeloStore\\ADLS\\Logger')) {
+            \HeloStore\ADLS\Logger::instance()->log(
+                $_REQUEST
+                , $_SERVER
+                , \HeloStore\ADLS\Logger::OBJECT_TYPE_SUBSCRIPTION_MIGRATE_ALERT
+                , 'send'
+                , array(
+                    'result' => $result
+                    , 'alert' => json_encode($alert)
+                )
+            );
+        }
+
+        return $result;
+    }
 }

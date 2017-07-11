@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 if (in_array($mode, array('update', 'add', 'manage'))) {
 	$view = &Tygh::$app['view'];
 
-	$plans = \HeloStore\ADLS\Subscription\PlanRepository::instance()->find(array(
+	list($plans, ) = \HeloStore\ADLS\Subscription\PlanRepository::instance()->find(array(
 //		'status' => Plan::STATUS_ACTIVE
 	));
 	$view->assign('plans', $plans);

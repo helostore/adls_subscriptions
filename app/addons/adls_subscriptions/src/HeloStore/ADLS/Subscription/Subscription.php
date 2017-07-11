@@ -510,6 +510,18 @@ class Subscription extends Entity
     }
 
     /**
+     * @return string
+     */
+    public function getRemainingTime()
+    {
+        if ($this->hasEndDate()) {
+            return Utils::instance()->getDuration($this->endDate);
+        }
+
+        return '&mdash;';
+    }
+
+    /**
      * Checks if a subscription is newly created
      *
      * @return bool

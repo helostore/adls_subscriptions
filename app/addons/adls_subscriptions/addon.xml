@@ -19,6 +19,7 @@
             `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
             `name` varchar(255) NOT NULL,
             `cycle` tinyint(4) NOT NULL,
+            `status` char(1) NOT NULL,
             `createdAt` datetime NOT NULL,
             `updatedAt` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`)
@@ -58,6 +59,10 @@
             ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
         </item>
     </queries>
+    <php_version>
+        <min>5.4.0</min>
+    </php_version>
+
 
     <authors>
         <author>

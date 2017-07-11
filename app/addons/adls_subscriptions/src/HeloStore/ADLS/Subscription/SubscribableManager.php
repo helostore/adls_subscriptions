@@ -63,34 +63,6 @@ class SubscribableManager extends Manager
     }
 
     /**
-     * @param $option
-     * @param $productId
-     * @param $langCode
-     *
-     * @return bool
-     */
-    public function onGetProductOptionDataPost(&$option, $productId, $langCode)
-    {
-        if (empty($option)) {
-            return false;
-        }
-        if (!$this->isSubscribable($option)) {
-            return false;
-        }
-//        $subscribableId = $option['subscribableId'];
-
-        if (!empty($option['variants'])) {
-            foreach ($option['variants'] as $k => $variant) {
-//                aa($variant);
-            }
-        }
-
-        return true;
-    }
-
-
-
-    /**
      * Methods
      */
 
@@ -106,6 +78,8 @@ class SubscribableManager extends Manager
     {
         return (!empty($object) && !empty($object['subscribableId']));
     }
+
+
 
     /**
      * @param $subscribableId

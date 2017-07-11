@@ -58,6 +58,12 @@ class Plan extends Entity
 	protected $updatedAt;
 
 	/**
+	 * @var string
+	 */
+	protected $status;
+
+
+	/**
 	 * @return int
 	 */
 	public function getId()
@@ -145,6 +151,25 @@ class Plan extends Entity
 		return $this;
 	}
 
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
 	/**
 	 * Helpers
 	 */
@@ -153,4 +178,5 @@ class Plan extends Entity
 	{
 		return $this->getName();
 	}
+
 }

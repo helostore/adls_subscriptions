@@ -9,7 +9,9 @@
 namespace HeloStore\ADLS\Subscription;
 
 
-class Entity
+use JsonSerializable;
+
+class Entity implements JsonSerializable
 {
     /**
      * Keep here the entity$prop variables for now
@@ -97,5 +99,16 @@ class Entity
         }
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize() {
+        $json = array();
+        foreach($this as $key => $value) {
+            $json[$key] = $value;
+        }
+        return $json;
     }
 }

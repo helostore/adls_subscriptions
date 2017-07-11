@@ -34,11 +34,29 @@ class PlanRepository extends EntityRepository
 			'cycle' => $cycle,
 			'createdAt' => $date->format('Y-m-d H:i:s'),
 			'updateAt' => null,
+            'status' => Plan::STATUS_ACTIVE
 		);
 
 		$id = db_query('INSERT INTO ?:adlss_plans ?e', $data);
 
 		return $id;
+	}
+
+
+	/**
+	 * @param Plan $plan
+	 *
+	 * @return bool
+	 */
+	public function update(Plan $plan)
+	{
+        $plan->setUpdatedAt(new \DateTime());
+		$data = $plan->toArray();
+		$data['updatedAt'] = Utils::instance()->getCurrentDate()->format('Y-m-d H:i:s');
+		$query = db_quote('UPDATE ' . $this->table . ' SET ?u WHERE id = ?d', $data, $plan->getId());
+		db_query($query);
+
+		return true;
 	}
 
 	/**
@@ -56,13 +74,13 @@ class PlanRepository extends EntityRepository
 	/**
 	 * @param array $params
 	 *
-	 * @return Plan[]|Plan|null
+	 * @return array|Plan|null
 	 */
 	public function find($params = array())
 	{
 		$condition = array();
 		if (isset($params['id'])) {
-			$condition[] = db_quote('plan.id = ?n', $params['id']);
+			$condition[] = db_quote('plan.id = ?i', $params['id']);
 		}
 
 		if (!empty($params['status'])) {
@@ -72,8 +90,18 @@ class PlanRepository extends EntityRepository
 
 		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
 
-		$query = db_quote('SELECT * FROM ?p AS plan ?p', $this->table, $condition);
 
+        $limit = '';
+        $joins = '';
+        if (isset($params['one'])) {
+            $limit = 'LIMIT 0,1';
+        } else if (!empty($params['items_per_page'])) {
+            $query = db_quote('SELECT COUNT(DISTINCT plan.id) FROM ?p AS plan ?p ?p ?p', $this->table, $joins, $condition, $limit);
+            $params['total_items'] = db_get_field($query);
+            $limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
+        }
+
+		$query = db_quote('SELECT * FROM ?p AS plan ?p ?p', $this->table, $condition, $limit);
 
 		$items = db_get_array($query);
 		if (empty($items)) {
@@ -85,10 +113,12 @@ class PlanRepository extends EntityRepository
 		}
 
 		if (isset($params['one'])) {
-			$items = !empty($items) ? reset($items) : null;
+			$item = !empty($items) ? reset($items) : null;
+
+            return $item;
 		}
 
-		return $items;
+        return array($items, $params);
 	}
 
 	/**

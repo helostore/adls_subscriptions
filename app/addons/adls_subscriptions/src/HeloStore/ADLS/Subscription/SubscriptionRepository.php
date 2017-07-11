@@ -77,6 +77,19 @@ class SubscriptionRepository extends EntityRepository
         return true;
 	}
 
+
+    /**
+     * Delete
+     *
+     * @param Subscription $subscription
+     *
+     * @return bool|int
+     */
+    public function delete($subscription)
+    {
+        return db_query('DELETE FROM ?p WHERE id = ?d', $this->table, $subscription->getId());
+    }
+
 	/**
 	 * @param array $params
 	 *
@@ -213,13 +226,14 @@ class SubscriptionRepository extends EntityRepository
 	/**
 	 * @param $orderId
 	 *
+	 * @param array $params
 	 * @return Subscription[]|null
 	 */
-	public function findByOrder($orderId)
+	public function findByOrder($orderId, $params = array())
 	{
-		return $this->find(array(
-			'orderId' => $orderId
-		));
+		$params['orderId'] = $orderId;
+
+		return $this->find($params);
 	}
 
 	/**
@@ -250,7 +264,7 @@ class SubscriptionRepository extends EntityRepository
 	/**
 	 * @param $orderId
 	 *
-	 * @return Subscription[]|null
+	 * @return Subscription|null
 	 */
 	public function findOneByOrderItem($orderId, $itemId)
 	{
