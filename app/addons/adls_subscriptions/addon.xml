@@ -46,6 +46,7 @@
             `orderId` mediumint(8) NOT NULL,
             `itemId` varchar(12) NOT NULL,
             `productId` mediumint(8) NOT NULL,
+            `releaseId`  mediumint(8) UNSIGNED NULL,
             `companyId` mediumint(8) NOT NULL,
             `status` char(1) NOT NULL,
             `startDate` datetime DEFAULT NULL,

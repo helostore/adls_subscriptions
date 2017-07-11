@@ -61,6 +61,11 @@ class Subscription extends Entity
     /**
      * @var integer
      */
+    protected $releaseId;
+
+    /**
+     * @var integer
+     */
     protected $companyId;
 
     /**
@@ -207,6 +212,26 @@ class Subscription extends Entity
     public function setProductId($productId)
     {
         $this->productId = $productId;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getReleaseId()
+    {
+        return $this->releaseId;
+    }
+
+    /**
+     * @param int $releaseId
+     *
+     * @return $this
+     */
+    public function setReleaseId($releaseId)
+    {
+        $this->releaseId = $releaseId;
 
         return $this;
     }

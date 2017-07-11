@@ -53,7 +53,6 @@ class SubscriptionRepository extends EntityRepository
 			'createdAt' => $date->format('Y-m-d H:i:s'),
 			'updateAt' => $date->format('Y-m-d H:i:s'),
 		);
-
 		$subscriptionId = db_query('INSERT INTO ' . $this->table . ' ?e', $data);
 
 		return $subscriptionId;

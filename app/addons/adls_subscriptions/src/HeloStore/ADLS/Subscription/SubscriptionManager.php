@@ -205,8 +205,6 @@ class SubscriptionManager extends Manager
 
                 $planId = $plan->getId();
 
-
-
                 /** @var Subscription $subscription */
                 if (!empty($orderInfo['subscription'])) {
                     $subscription = $orderInfo['subscription'];
@@ -219,8 +217,6 @@ class SubscriptionManager extends Manager
                         'productId' => $productId,
                     ));
                 }
-
-
 
                 if ($isPaidStatus) {
                     // If order paid successfully
@@ -239,12 +235,9 @@ class SubscriptionManager extends Manager
                         fn_set_hook('adls_subscriptions_post_resume', $subscription, $product, $orderInfo);
                     }
 
-
                     if (!$subscription->isActive() && $subscription->isNew()) {
 
                     }
-
-
                 } else {
                     // If order payment failed, inactivate the subscription
                     if (!empty($subscription)) {
