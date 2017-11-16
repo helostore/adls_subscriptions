@@ -1,20 +1,35 @@
 ADLS Subscriptions for CS-Cart
-====
+==============================
 
 **ADLS Subscriptions** is an add-on for CS-Cart e-commerce platform that integrates subscriptions into your store.
 
 
 Setup
-----
+-----
 
-* Install the add-on
-* Add a new order status "Expired" to which suspended subscription's order status will change
-* Go to add-on's settings and choose this new status
-* Add a plan
-* Assign the plan to a product option. The option can have multiple variants specifying the initial period to be paid for (`position` field = number of months)
-* Assign product option to the desired products
-* Run a test, buy the product
+1. Install the add-on.
+1. Add a new order status "Expired" to which suspended subscription's order status willn be changed into.
+1. Go to add-on's settings and choose this new status.
+1. Add a plan.
+1. Assign the plan to a product option. The option can have multiple variants specifying the initial period to be paid for (`position` field = number of months).`
+1. Assign the product option to the desired products.
+1. Run a test, buy the product.
 
+
+Migration to subscription tier
+------------------------------
+1. Update settings:
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.settings
+1. Disable EDP feature in old orders items
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.products_edp
+1. Remove Sidekick's product options from orders and product itself
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.sidekick_convert
+1. Assign subscribable product option to all addons/products:
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.products
+1. Add release data for each addon
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.releases
+1. Migrate current customers to a default Subscription Plan + notify them
+    http://local.helostore.com/hsw.php?dispatch=adls_migrate.subscriptions
 
 
 License

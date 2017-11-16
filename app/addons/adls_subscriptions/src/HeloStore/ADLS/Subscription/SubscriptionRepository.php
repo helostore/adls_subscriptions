@@ -226,7 +226,7 @@ class SubscriptionRepository extends EntityRepository
 	 * @param $orderId
 	 *
 	 * @param array $params
-	 * @return Subscription[]|null
+	 * @return array|null
 	 */
 	public function findByOrder($orderId, $params = array())
 	{

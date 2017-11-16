@@ -47,7 +47,7 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
     public function migrateOrder($order)
     {
         if (!in_array($order['status'], array('P'))) {
-            return;
+            return false;
         }
 
         $subscriptionManager = SubscriptionManager::instance();
@@ -57,7 +57,7 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
 
         if (!empty($subscriptions)) {
             aa('Order #' . $orderId . ' has ' . count($subscriptions) . ' subscriptions, skipping..');
-            return;
+            return false;
         }
 
 //        $order = fn_get_order_info($order['order_id']);
@@ -69,7 +69,7 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
         list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId, array('extended' => true));
         if (empty($subscriptions)) {
             aa('Warning: No subscriptions generated for order #' . $orderId);
-            return;
+            return false;
         }
         $orderDate = Utils::instance()->createDateFromTimestamp($order['timestamp']);
         $planRepository = PlanRepository::instance();
@@ -102,9 +102,9 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
         $order = fn_get_order_info($order['order_id']);
 
         aa('Order #' . $orderId . ' generated ' . count($subscriptions) . ' subscriptions for ' . count($order['products']) .' order items');
-        if (count($subscriptions) != count($order['products'])) {
+//        if (count($subscriptions) != count($order['products'])) {
 //            aa('Warning: unequal number of subscriptions!!!!!!!!!!!!!!!');
-        }
+//        }
         aa(' - sending alert about the migration..');
 
         $result = $this->alert($order, $subscriptions);
@@ -113,8 +113,10 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
         } else {
             aa(' - success: ' . $result);
         }
-        sleep(5);
+        sleep(1);
         ob_flush();
+
+        return true;
     }
 
     /**
@@ -248,7 +250,7 @@ class MigrationManager extends \HeloStore\ADLS\Subscription\Manager
             return true;
         }
         $alert = array();
-        $alert['subject'] = $alert['title'] = 'Order #' . $order['order_id'] . ' updated';
+        $alert['subject'] = $alert['title'] = 'Order #' . $order['order_id'] . ' Update';
         $alert['subtitle'] = '';
 //        $alert['subtitle'] = 'This shouldn\'t affect the current state of your order.';
 //        $alert['subtitle'] = 'HELOstore is moving to subscription-based products.';
