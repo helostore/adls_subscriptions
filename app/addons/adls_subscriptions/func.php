@@ -27,9 +27,11 @@ function fn_adls_subscriptions_delete_order($orderId)
 {
     $subscriptionRepository = SubscriptionRepository::instance();
     list($subscriptions, ) = $subscriptionRepository->findByOrder($orderId);
+	if ( empty( $subscriptions ) ) {
+		return;
+	}
     foreach ($subscriptions as $subscription) {
         $subscriptionRepository->delete($subscription);
-
     }
 }
 
@@ -94,9 +96,15 @@ function fn_adls_subscriptions_place_order($order_id, $action, $order_status, $c
 
     return SubscriptionManager::instance()->onPlaceOrder($order_id, $action, $order_status, $cart, $auth);
 }
+
 function fn_adls_subscriptions_get_order_info(&$order, $additional_data)
 {
-    return SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
+
+	if ( ! empty( $GLOBALS['_adlss_order_id'] ) ) {
+		$order = fn_adlss_emulate_order( $GLOBALS['_adlss_order_id'], $GLOBALS['_adlss_order'] );
+	} else {
+	    SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
+	}
 }
 
 
@@ -111,6 +119,34 @@ function fn_settings_variants_addons_adls_subscriptions_order_status_on_suspend(
  * Helpers
  */
 
+function fn_adlss_spoof_order_id( $adlss_order_id ) {
+	$GLOBALS['_adlss_order_id'] = $adlss_order_id;
+	$GLOBALS['_adlss_order'] = $_SESSION['cart'];
+}
+function fn_adlss_emulate_order( $adlss_order_id, $cart ) {
+
+	$lang_code = $cart['lang_code'];
+	foreach ( $cart['products'] as $k => $v) {
+		$cart['products'][$k]['subtotal'] = $v['price'];
+		$cart['products'][$k]['product_options'] = fn_get_selected_product_options_info($v['extra']['product_options'], $lang_code);
+	}
+
+	$order_info = array(
+		'order_id'      => $adlss_order_id,
+		'shipping_cost' => $cart['shipping_cost'],
+		'total'         => $cart['total'],
+		'products'         => $cart['products'],
+		'repaid'        => 0,
+	);
+
+	$order_info = array_merge( $order_info, $cart['user_data'] );
+	$order_info['status'] = 'P';
+
+
+//	aa( $order_info, 1 );
+
+	return $order_info;
+}
 function fn_adlss_is_subscribable($object)
 {
     return SubscribableManager::instance()->isSubscribable($object);
