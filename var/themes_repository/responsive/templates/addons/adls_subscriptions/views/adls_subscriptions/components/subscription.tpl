@@ -28,7 +28,7 @@
             Active
         {/if}
         {if $subscription->isInactive()}
-            Inactive &mdash; <a class="ty-btn ty-btn__primary ty-btn" href="{"adls_subscriptions.renew?id={$subscription->getId()}"|fn_url}">Renew</a>
+            Inactive &mdash; <a class="ty-btn ty-btn__primary ty-btn" href="{"checkout.checkout?subscription_id={$subscription->getId()}"|fn_url}">Renew</a>
         {/if}
         {if $subscription->isDisabled()}
             Disabled
