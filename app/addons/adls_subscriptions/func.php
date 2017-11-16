@@ -12,10 +12,9 @@
  * @version    $Id$
  */
 
-use HeloStore\ADLS\Subscription\SubscribableManager;
-use HeloStore\ADLS\Subscription\SubscriptionManager;
-use HeloStore\ADLS\Subscription\SubscriptionRepository;
-use Tygh\Registry;
+use HeloStore\ADLSS\Subscribable\SubscribableManager;
+use HeloStore\ADLSS\Subscription\SubscriptionManager;
+use HeloStore\ADLSS\Subscription\SubscriptionRepository;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
@@ -84,7 +83,8 @@ function fn_adls_subscriptions_change_order_status($status_to, $status_from, $or
  * @param $order_status
  * @param $cart
  * @param $auth
- * @return bool|void
+ *
+ * @return bool
  */
 function fn_adls_subscriptions_place_order($order_id, $action, $order_status, $cart, $auth)
 {

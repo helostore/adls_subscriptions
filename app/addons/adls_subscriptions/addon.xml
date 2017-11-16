@@ -59,6 +59,21 @@
             PRIMARY KEY (`id`)
             ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
         </item>
+        <item for="install">
+            CREATE TABLE `?:adlss_subscription_payments` (
+            `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+            `subscriptionId` mediumint(8) unsigned NOT NULL,
+            `userId` mediumint(8) unsigned NOT NULL,
+            `orderId` mediumint(8) unsigned NOT NULL,
+            `companyId` mediumint(8) unsigned NOT NULL,
+            `methodId` mediumint(8) unsigned NOT NULL,
+            `amount` decimal(12,2) NOT NULL,
+            `status` char(1) NOT NULL DEFAULT 'O',
+            `createdAt` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `updatedAt` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        </item>
     </queries>
     <php_version>
         <min>5.4.0</min>

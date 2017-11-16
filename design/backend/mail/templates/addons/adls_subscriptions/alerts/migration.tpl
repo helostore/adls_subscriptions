@@ -20,7 +20,7 @@
                     <ul>
                     {foreach from=$subscriptions item='subscription'}
                         <li>
-                            <b>{$subscription->extra['product$name']}</b> is now migrated to <b>{$subscription->extra['plan$name']}</b>, valid from
+                            <b>{$subscription->extra['product$name']}</b> has been migrated to <b>{$subscription->extra['plan$name']}</b>, valid from
                             <b>
                             {if $subscription->hasStartDate()}
                                 {$subscription->getStartDate()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}

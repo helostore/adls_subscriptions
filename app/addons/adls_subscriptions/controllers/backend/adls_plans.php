@@ -12,7 +12,8 @@
  * @version    $Id$
  */
 
-use HeloStore\ADLS\Subscription\PlanRepository;
+use HeloStore\ADLSS\Plan;
+use HeloStore\ADLSS\Plan\PlanRepository;
 use Tygh\Registry;
 use Tygh\Tygh;
 
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if ($mode == 'add') {
-    $plan = new \HeloStore\ADLS\Subscription\Plan();
+    $plan = new Plan();
     Tygh::$app['view']->assign('plan', $plan);
 }
 

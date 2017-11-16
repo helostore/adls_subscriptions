@@ -12,7 +12,7 @@
  * @version    $Id$
  */
 
-use HeloStore\ADLS\Subscription\SubscriptionRepository;
+use HeloStore\ADLSS\Subscription\SubscriptionRepository;
 use Tygh\Registry;
 use Tygh\Tygh;
 

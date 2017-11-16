@@ -12,10 +12,8 @@
  * @version    $Id$
  */
 
-use HeloStore\ADLS\Subscription\Plan;
-use HeloStore\ADLS\Subscription\Subscribable;
-use HeloStore\ADLS\Subscription\SubscribableManager;
-use HeloStore\ADLS\Subscription\SubscribableRepository;
+use HeloStore\ADLSS\Plan\PlanRepository;
+use HeloStore\ADLSS\Subscribable\SubscribableManager;
 use Tygh\Registry;
 use Tygh\Tygh;
 
@@ -68,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 if (in_array($mode, array('update', 'add', 'manage'))) {
 	$view = &Tygh::$app['view'];
 
-	list($plans, ) = \HeloStore\ADLS\Subscription\PlanRepository::instance()->find(array(
+	list($plans, ) = PlanRepository::instance()->find(array(
 //		'status' => Plan::STATUS_ACTIVE
 	));
 	$view->assign('plans', $plans);

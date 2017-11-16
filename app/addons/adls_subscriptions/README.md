@@ -8,7 +8,7 @@ Setup
 -----
 
 1. Install the add-on.
-1. Add a new order status "Expired" to which suspended subscription's order status willn be changed into.
+1. Add a new order status "Expired" to which suspended subscription's order status will be changed into.
 1. Go to add-on's settings and choose this new status.
 1. Add a plan.
 1. Assign the plan to a product option. The option can have multiple variants specifying the initial period to be paid for (`position` field = number of months).`
@@ -16,8 +16,22 @@ Setup
 1. Run a test, buy the product.
 
 
+Crons
+-----
+# Check subscription expiration hourly
+30 * * * * php admin.php --dispatch=adls_cycle.check.expiration
+
+# Check subscription alerts once a day
+0 15 * * * php admin.php --dispatch=adls_cycle.check.alerts
+
+
 Migration to subscription tier
 ------------------------------
+
+Go to http://local.helostore.com/hsw.php?dispatch=adls_migrate.view and run the partially automated migration scripts.
+
+Or run the scripts independently, one by one:
+
 1. Update settings:
     http://local.helostore.com/hsw.php?dispatch=adls_migrate.settings
 1. Disable EDP feature in old orders items
