@@ -16,6 +16,7 @@ namespace HeloStore\ADLSS;
 
 
 
+use HeloStore\ADLS\License;
 use HeloStore\ADLSS\Base\Entity;
 
 class Subscription extends Entity
@@ -114,6 +115,11 @@ class Subscription extends Entity
      * @var \DateTime
      */
     protected $updatedAt;
+
+	/**
+	 * @var License
+	 */
+	protected $license;
 
     /**
      * @return int
@@ -484,6 +490,24 @@ class Subscription extends Entity
 		return $this;
 	}
 
+	/**
+	 * @return License
+	 */
+	public function getLicense() {
+		return $this->license;
+	}
+
+	/**
+	 * @param License $license
+	 *
+	 * @return $this
+	 */
+	public function setLicense( $license ) {
+		$this->license = $license;
+
+		return $this;
+	}
+
     /**
      * Methods
      */
@@ -601,5 +625,4 @@ class Subscription extends Entity
         
         return ($endDate <= $now);
     }
-
 }

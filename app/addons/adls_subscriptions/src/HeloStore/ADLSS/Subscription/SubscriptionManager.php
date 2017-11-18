@@ -239,12 +239,6 @@ class SubscriptionManager extends Manager
 
                 $planId = $plan->getId();
 
-//                if (!empty($orderInfo['subscription'])) {
-//                    $subscription = $orderInfo['subscription'];
-//                } else {
-//
-//                }
-
 	            $isRenewal = false;
 	            if ( ! empty( $product['subscription'] ) ) {
 		            /** @var Subscription $subscription */
@@ -260,9 +254,6 @@ class SubscriptionManager extends Manager
 			            'productId' => $productId,
 		            ));
 	            }
-
-
-
 
 
                 if ($isPaidStatus) {

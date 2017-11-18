@@ -180,10 +180,11 @@ class SubscriptionRepository extends EntityRepository
             $fields[] = 'orderItem.price AS orderItem$price';
 		}
 
+		fn_set_hook('adlss_get_subscriptions', $fields, $this->table, $joins, $condition, $sorting, $limit, $params);
+
         $joins = empty($joins) ? '' : implode(' ', $joins);
         $fields = empty($fields) ? 'subscription.*' : implode(', ', $fields);
 		$condition = !empty($condition) ? ' WHERE ' . implode(' AND ', $condition) . '' : '';
-
 
         $limit = '';
         if (isset($params['one'])) {
@@ -205,6 +206,8 @@ class SubscriptionRepository extends EntityRepository
 		foreach ($items as $k => $v) {
 			$items[$k] = new Subscription($v);
 		}
+
+		fn_set_hook('adlss_get_subscriptions_post', $items, $params);
 
 		if (isset($params['one'])) {
 			$items = !empty($items) ? reset($items) : null;

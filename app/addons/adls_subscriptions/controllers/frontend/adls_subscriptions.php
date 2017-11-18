@@ -93,11 +93,11 @@ if ( $mode === 'manage' ) {
 	$subscriptionRepository = SubscriptionRepository::instance();
 	$userId = $auth['user_id'];
 	list($subscriptions, $search) = $subscriptionRepository->find(array(
-		'userId' => $userId
+		'userId' => $userId,
+		'extended' => true
 	));
-
+//	aa( $subscriptions, 1 );
 
 	Tygh::$app['view']->assign('subscriptions', $subscriptions);
 	Tygh::$app['view']->assign('search', $search);
-
 }

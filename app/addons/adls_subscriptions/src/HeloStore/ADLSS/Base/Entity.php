@@ -33,7 +33,35 @@ abstract class Entity implements JsonSerializable
         }
     }
 
-    /**
+	/**
+	 * @param $key
+	 *
+	 * @return mixed|null
+	 */
+    public function getExtra( $key ) {
+	    if ( isset( $this->extra[ $key ] ) ) {
+		    return $this->extra[ $key ];
+	    }
+
+	    return null;
+    }
+
+	/**
+	 * @param $key
+	 * @param $value
+	 *
+	 * @return mixed|null
+	 */
+    public function setExtra( $key, $value ) {
+	    if (! isset( $this->extra[ $key ] ) ) {
+		    return false;
+	    }
+	    $this->extra[ $key ] = $value;
+
+	    return null;
+    }
+
+	/**
      * @return array
      */
     public function toArray()
