@@ -14,6 +14,7 @@
 namespace HeloStore\ADLSS\Payment;
 
 use HeloStore\ADLSS\Base\EntityRepository;
+use HeloStore\ADLSS\Subscription;
 use HeloStore\ADLSS\Utils;
 
 class PaymentRepository extends EntityRepository
@@ -25,21 +26,21 @@ class PaymentRepository extends EntityRepository
 	 *
 	 * @param $userId
 	 * @param $orderId
+	 * @param $itemId
 	 * @param $subscriptionId
 	 * @param $companyId
-	 * @param $methodId
 	 * @param $amount
 	 *
 	 * @return bool|int
 	 */
-	public function create($userId, $orderId, $subscriptionId, $companyId, $methodId, $amount)
+	public function create($userId, $orderId, $itemId, $subscriptionId, $companyId, $amount)
 	{
 		$date = Utils::instance()->getCurrentDate();
 		$data = array(
 			'userId' => $userId,
 			'subscriptionId' => $subscriptionId,
 			'orderId' => $orderId,
-			'methodId' => $methodId,
+			'itemId' => $itemId,
 			'amount' => $amount,
 			'companyId' => $companyId,
 			'status' => Payment::STATUS_OPENED,
@@ -49,6 +50,22 @@ class PaymentRepository extends EntityRepository
 		$id = db_query('INSERT INTO ' . $this->table . ' ?e', $data);
 
 		return $id;
+	}
+
+	/**
+	 * @param Payment $payment
+	 *
+	 * @return bool
+	 */
+	public function update(Payment $payment)
+	{
+		$payment->setUpdatedAt(new \DateTime());
+		$data = $payment->toArray();
+		$data['updatedAt'] = Utils::instance()->getCurrentDate()->format('Y-m-d H:i:s');
+		$query = db_quote('UPDATE ' . $this->table . ' SET ?u WHERE id = ?d', $data, $payment->getId());
+		$result = db_query($query);
+
+		return true;
 	}
 
 
@@ -129,4 +146,50 @@ class PaymentRepository extends EntityRepository
 		return array($items, $params);
 	}
 
+	/**
+	 * @param $subscription
+	 *
+	 * @return array|null
+	 */
+	public function findBySubscription(Subscription $subscription) {
+		return $this->find(array(
+			'subscriptionId' => $subscription->getId()
+		));
+	}
+
+	/**
+	 * @param array $params
+	 *
+	 * @return Payment|null
+	 */
+	public function findOne($params = array())
+	{
+		$params['one'] = true;
+		list($payment, ) = $this->find($params);
+
+		return $payment;
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return Payment|null
+	 */
+	public function findOneById($id) {
+		return $this->findOne( array(
+			'id' => $id
+		) );
+	}
+
+	/**
+	 * Delete a payment
+	 *
+	 * @param Payment $payment
+	 *
+	 * @return bool|int
+	 */
+	public function delete(Payment $payment)
+	{
+		return db_query('DELETE FROM ?p WHERE id = ?d', $this->table, $payment->getId());
+	}
 }

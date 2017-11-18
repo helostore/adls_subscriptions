@@ -15,6 +15,7 @@ namespace HeloStore\ADLSS\Subscription;
 
 use Exception;
 use HeloStore\ADLSS\Base\Manager;
+use HeloStore\ADLSS\Payment\PaymentRepository;
 use HeloStore\ADLSS\Plan;
 use HeloStore\ADLSS\Plan\PlanRepository;
 use HeloStore\ADLSS\Subscribable;
@@ -61,10 +62,6 @@ class SubscriptionManager extends Manager
 
     public function onGetOrderInfo(&$order, $additionalData)
     {
-        if (empty($order['products'])) {
-            return true;
-        }
-
         $subscribableManager = SubscribableManager::instance();
         $subscribableRepository = SubscribableRepository::instance();
         $userId = $order['user_id'];
@@ -78,6 +75,14 @@ class SubscriptionManager extends Manager
                 continue;
             }
 
+            // This is an order for a subscription renewal, and not the order of creating a new subscription
+	        if ( ! empty( $product['extra'] ) && ! empty( $product['extra']['subscription_id'] ) ) {
+		        $subscriptionId = $product['extra']['subscription_id'];
+		        $product['subscription'] = $this->repository->findOneById( $subscriptionId );
+		        continue;
+	        }
+
+
             foreach ($product['product_options'] as &$option) {
 
                 $productOption = fn_get_product_option_data($option['option_id'], $option['product_id']);
@@ -85,6 +90,7 @@ class SubscriptionManager extends Manager
                 if (!$subscribableManager->isSubscribable($productOption)) {
                     continue;
                 }
+
 
                 $subscribableLink = $subscribableRepository->findOneByObject($option['option_id'], Subscribable::OBJECT_TYPE_PRODUCT_OPTION);
                 if (empty($subscribableLink)) {
@@ -161,12 +167,12 @@ class SubscriptionManager extends Manager
         $subscriptionRepository = $this->getRepository();
         $subscribableManager = SubscribableManager::instance();
         $subscribableRepository = SubscribableRepository::instance();
+	    $paymentRepository = PaymentRepository::instance();
 //        $planManager = PlanManager::instance();
         $planRepository = PlanRepository::instance();
         $orderId = $orderInfo['order_id'];
         $userId = $orderInfo['user_id'];
         $companyId = $orderInfo['company_id'];
-
 
         foreach ($orderInfo['products'] as $product) {
             $productId = $product['product_id'];
@@ -185,66 +191,119 @@ class SubscriptionManager extends Manager
                 $objectId = $option['option_id'];
                 $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
 
+	            $subscribableLink = $subscribableRepository->findOneByObject($objectId, $objectType);
+	            if (empty($subscribableLink)) {
+		            throw new Exception('Unable to fetch subscribable link for option');
+	            }
+
+	            $plan = $planRepository->findOneById($subscribableLink->getPlanId());
+	            if (!$plan instanceof Plan) {
+		            throw new Exception('Unable to fetch plan from subscribable link');
+	            }
+
                 $defaultVariant = reset($productOption['variants']);
-                if (empty($defaultVariant)) {
-                    throw new Exception('Unable to fetch default option variant');
-                }
+	            if (empty($defaultVariant)) {
+		            throw new Exception('Unable to fetch default option variant');
+	            }
 
-                // Assume this is a variant ID
-                if (!empty($option['value'])) {
-                    $variantId = $option['value'];
-                    $variant = $productOption['variants'][$variantId];
-                } else {
-                    $variant = $defaultVariant;
-                }
+	            // Fetch the variant currently in order (which may be a 0 cost initial trial, or a pre-paid subscription variant)
+	            if (!empty($option['value'])) {
+		            $currentVariantId = $option['value'];
+		            $currentVariant = $productOption['variants'][$currentVariantId];
+	            } else {
+		            $currentVariant = $defaultVariant;
+	            }
+	            $currentPaidAmount = Utils::instance()->getVariantModifierValue($currentVariant);
 
-                // @TODO add a field for days in option-variant, and replace `position` functionality
-                $initialPaidPeriod = $variant['position']; // months
-                $subscribableLink = $subscribableRepository->findOneByObject($objectId, $objectType);
-                if (empty($subscribableLink)) {
-                    throw new Exception('Unable to fetch subscribable link for option');
-                }
+	            $defaultCycleVariant = $currentVariant;
+	            if ( empty( $currentPaidAmount ) ) {
+		            // Customer selected the initial / free plan
+		            // Grab the subscription cycle price based on variants
+		            foreach ( $productOption['variants'] as $v ) {
+			            // @TODO add a field for days in option-variant, and replace `position` functionality
+			            $cycle = $v['position'];
+			            if ( $cycle == $plan->getCycle() ) {
+				            $defaultCycleVariant = $v;
+				            break;
+			            }
+		            }
+	            } else {
+		            // Customer selected a paid plan
+	            }
 
-                $plan = $planRepository->findOneById($subscribableLink->getPlanId());
-                if (!$plan instanceof Plan) {
-                    throw new Exception('Unable to fetch plan from subscribable link');
-                }
+	            $defaultCycleAmount = Utils::instance()->getVariantModifierValue($defaultCycleVariant);
+
+	            // @TODO add a field for days in option-variant, and replace `position` functionality
+	            $initialPaidPeriod = $currentVariant['position']; // months
+
 
                 $planId = $plan->getId();
 
-                /** @var Subscription $subscription */
-                if (!empty($orderInfo['subscription'])) {
-                    $subscription = $orderInfo['subscription'];
-                } else {
-                    $subscription = $subscriptionRepository->findOne(array(
-                        'userId' => $userId,
-                        'planId' => $planId,
-                        'orderId' => $orderId,
-                        'itemId' => $itemId,
-                        'productId' => $productId,
-                    ));
-                }
+//                if (!empty($orderInfo['subscription'])) {
+//                    $subscription = $orderInfo['subscription'];
+//                } else {
+//
+//                }
+
+	            $isRenewal = false;
+	            if ( ! empty( $product['subscription'] ) ) {
+		            /** @var Subscription $subscription */
+		            $subscription = $product['subscription'];
+		            $isRenewal = true;
+	            } else {
+		            /** @var Subscription $subscription */
+		            $subscription = $subscriptionRepository->findOne(array(
+			            'userId' => $userId,
+			            'planId' => $planId,
+			            'orderId' => $orderId,
+			            'itemId' => $itemId,
+			            'productId' => $productId,
+		            ));
+	            }
+
+
+
+
 
                 if ($isPaidStatus) {
                     // If order paid successfully
                     if (empty($subscription)) {
                         // Create a new subscription
-                        $subscriptionId = $subscriptionRepository->create($userId, $planId, $orderId, $itemId, $productId, $companyId);
+                        $subscriptionId = $subscriptionRepository->create($userId, $planId, $orderId, $itemId, $productId, $defaultCycleAmount, $companyId);
                         if (empty($subscriptionId)) {
                             throw new Exception('Unable to create subscription for order ' . $orderId);
                         }
                         $subscription = $subscriptionRepository->findOneById($subscriptionId);
                         $this->begin($subscription, $initialPaidPeriod);
                         fn_set_hook('adls_subscriptions_post_begin', $subscription, $product, $orderInfo);
+
                     } else {
                         // Activate existing subscription
                         $this->resume($subscription);
                         fn_set_hook('adls_subscriptions_post_resume', $subscription, $product, $orderInfo);
                     }
 
-//                    if (!$subscription->isActive() && $subscription->isNew()) {
-//
-//                    }
+                    $payment = $paymentRepository->findOne(array(
+	                    'subscriptionId' => $subscription->getId(),
+	                    'orderId' => $orderId
+                    ));
+
+	                if ( empty( $payment ) ) {
+		                // Create payment record
+		                $paymentId = $paymentRepository->create($userId, $orderId, $itemId, $subscription->getId(), $companyId, $defaultCycleAmount);
+		                if (empty($paymentId)) {
+			                throw new Exception( 'Unable to create payment for subscription ' . $subscription->getId() );
+		                }
+		                $payment = $paymentRepository->findOneById( $paymentId );
+		                $payment->pay();
+		                $paymentRepository->update( $payment );
+	                } else {
+		                // Update payment record
+		                $payment->pay();
+		                $paymentRepository->update( $payment );
+	                }
+
+
                 } else {
                     // If order payment failed, inactivate the subscription
                     if (!empty($subscription)) {
@@ -253,6 +312,14 @@ class SubscriptionManager extends Manager
                             $subscription->inactivate();
                             $subscriptionRepository->update($subscription);
                             fn_set_hook('adls_subscriptions_post_fail', $subscription, $product, $orderInfo);
+
+//	                        // Update payment record
+//	                        $payment = $paymentRepository->findBySubscription( $subscription );
+//	                        if (empty($payment)) {
+//		                        throw new Exception( 'Unable to fetch payment for subscription ' . $subscription->getId() );
+//	                        }
+//	                        $payment->fail();
+//	                        $paymentRepository->update( $payment );
                         }
                     }
                 }
@@ -423,4 +490,40 @@ class SubscriptionManager extends Manager
 
         return $result;
     }
+
+	/**
+	 * Delete subscription and its payments
+	 *
+	 * @param Subscription $subscription
+	 * @return bool
+	 */
+	public function delete(Subscription $subscription)
+	{
+		$paymentRepository = PaymentRepository::instance();
+		list($payments, ) = $paymentRepository->findBySubscription( $subscription );
+		if (! empty( $payments ) ) {
+			foreach ( $payments as $payment ) {
+				$paymentRepository->delete($payment);
+			}
+		}
+
+		return $this->repository->delete( $subscription );
+	}
+
+	/**
+	 * @param Subscription $subscription
+	 *
+	 * @return bool
+	 */
+	public function getSubscriptionItem(Subscription $subscription) {
+		$order = fn_get_order_info( $subscription->getOrderId() );
+		if ( empty( $order ) ) {
+			return false;
+		}
+		$itemId = $subscription->getItemId();
+		if ( ! isset( $order['products'][ $itemId ] ) ) {
+			return false;
+		}
+		return $order['products'][ $itemId ];
+	}
 }

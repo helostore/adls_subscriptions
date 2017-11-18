@@ -47,7 +47,6 @@ class SubscribableManager extends Manager
      *
      * @return bool
      */
-
     public function onGetProductOptionDataPre($optionId, $productId, &$fields, $condition, &$join, $extraVariantFields, $langCode)
     {
         $join .= db_quote(' 

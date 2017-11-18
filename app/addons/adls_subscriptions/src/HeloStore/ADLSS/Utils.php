@@ -125,4 +125,26 @@ class Utils extends Singleton
     {
         return Registry::get('addons.adls_subscriptions');
     }
+
+	/**
+	 * @param $variant
+	 *
+	 * @return float|int|null
+	 * @throws \Exception
+	 */
+	public function getVariantModifierValue($variant) {
+		$amount = null;
+		if ($variant['modifier_type'] == 'A') {
+			// Absolute
+			if ($variant['modifier']{0} == '-') {
+				$amount = -1 * floatval(substr($variant['modifier'],1));
+			} else {
+				$amount = floatval($variant['modifier']);
+			}
+		} else {
+			throw new \Exception("Percentage modifiers not supported, variant #" . $variant['variant_id']);
+		}
+
+		return $amount;
+	}
 }

@@ -15,7 +15,7 @@
             <br>
             Elapsed Cycles: {$subscription->getElapsedCycles()}
             <br>
-            Status: {$subscription->getStatus()}
+            Status: {$subscription->getStatusLabel()}
             <br>
             Created at: {$subscription->getCreatedAt()->format('d/m/Y h:i:s')}
             <br>

@@ -92,6 +92,18 @@ msgctxt "Languages::adlss.plans"
 msgid "Plans"
 msgstr "Plans"
 
+msgctxt "Languages::adlss.availability"
+msgid "Availability"
+msgstr "Availability"
+
+msgctxt "Languages::adlss.status"
+msgid "Status"
+msgstr "Status"
+
+msgctxt "Languages::adlss.action"
+msgid "Action"
+msgstr "Action"
+
 msgctxt "Languages::adlss.subscribable.create.success"
 msgid ""
 msgstr "Subscription plan successfully attached to the updated object"

@@ -31,23 +31,8 @@ if ($mode == 'check') {
 		die( 'Invalid action' );
 	}
 
-	$subscriptionRepository = SubscriptionRepository::instance();
-	list($subscriptions, ) = $subscriptionRepository->find(array(
-		'status' => Subscription::STATUS_ACTIVE
-	));
-	if (empty($subscriptions)) {
-		exit;
-	}
 	$cycleManager = CycleManager::instance();
+	$cycleManager->runCheck($action);
 
-	/** @var Subscription $subscription */
-	foreach ($subscriptions as $subscription) {
-		if ( $action === 'expiration' ) {
-			$cycleManager->checkExpiration($subscription);
-		}
-
-		if ( $action === 'alerts' ) {
-			$cycleManager->checkAlerts($subscription);
-		}
-	}
+	exit;
 }

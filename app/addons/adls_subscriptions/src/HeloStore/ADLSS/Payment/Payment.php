@@ -51,6 +51,11 @@ class Payment extends Entity
     protected $orderId;
 
 	/**
+	 * @var integer
+	 */
+	protected $itemId;
+
+	/**
 	 * @var float
 	 */
 	protected $amount;
@@ -246,6 +251,23 @@ class Payment extends Entity
 		return $this;
 	}
 
+	/**
+	 * @return int
+	 */
+	public function getItemId() {
+		return $this->itemId;
+	}
+
+	/**
+	 * @param int $itemId
+	 *
+	 * @return $this
+	 */
+	public function setItemId( $itemId ) {
+		$this->itemId = $itemId;
+
+		return $this;
+	}
 
 
 

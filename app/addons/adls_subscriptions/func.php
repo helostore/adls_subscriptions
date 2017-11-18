@@ -12,9 +12,12 @@
  * @version    $Id$
  */
 
+use HeloStore\ADLSS\Subscribable;
 use HeloStore\ADLSS\Subscribable\SubscribableManager;
+use HeloStore\ADLSS\Subscription;
 use HeloStore\ADLSS\Subscription\SubscriptionManager;
 use HeloStore\ADLSS\Subscription\SubscriptionRepository;
+use Tygh\Registry;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
@@ -23,15 +26,50 @@ if (!defined('BOOTSTRAP')) { die('Access denied'); }
  * Hooks
  */
 
+function fn_adlss_format_product_title( $productId, $productName ) {
+
+	$text = ' (subscription renewal)';
+	if ( strstr( $productName, $text ) !== false ) {
+		return $productName;
+	}
+
+	$productName = $productName . $text;
+
+	return $productName;
+}
+
+function fn_adls_subscriptions_calculate_cart_post( $cart, $auth, $calculate_shipping, $calculate_taxes, $options_style, $apply_cart_promotions, &$cart_products, $product_groups ) {
+
+	if ( empty( $cart ) || empty( $cart['products'] ) ) {
+		return;
+	}
+
+	foreach ( $cart['products'] as $itemId => $item) {
+		if ( ! empty( $item['extra'] ) && ! empty( $item['extra']['custom_product_name'] ) ) {
+			$cart_products[ $itemId ]['custom_product_name'] = $item['extra']['custom_product_name'];
+		}
+	}
+}
+function fn_adls_subscriptions_get_product_name_post( $product_id, $lang_code, $as_array, &$result ) {
+
+	$controller = Registry::get( 'runtime.controller' );
+	if ( $controller != 'adls_subscriptions' ) {
+		return;
+	}
+
+	$result = fn_adlss_format_product_title($product_id, $result);
+}
+
 function fn_adls_subscriptions_delete_order($orderId)
 {
     $subscriptionRepository = SubscriptionRepository::instance();
+    $subscriptionManager = SubscriptionManager::instance();
     list($subscriptions, ) = $subscriptionRepository->findByOrder($orderId);
 	if ( empty( $subscriptions ) ) {
 		return;
 	}
     foreach ($subscriptions as $subscription) {
-        $subscriptionRepository->delete($subscription);
+	    $subscriptionManager->delete($subscription);
     }
 }
 
@@ -61,6 +99,29 @@ function fn_adls_subscriptions_get_product_option_data_pre($option_id, $product_
     return SubscribableManager::instance()->onGetProductOptionDataPre($option_id, $product_id, $fields, $condition, $join, $extra_variant_fields, $lang_code);
 }
 
+/**
+ * @param $product_ids
+ * @param $lang_code
+ * @param $only_selectable
+ * @param $inventory
+ * @param $only_avail
+ * @param $options
+ */
+function fn_adls_subscriptions_get_product_options_post( $product_ids, $lang_code, $only_selectable, $inventory, $only_avail, &$options ) {
+	foreach ( $options as $productId => $_options ) {
+		foreach ( $_options as $optionId => $option ) {
+			$sub = db_get_row( 'SELECT id AS subscribableId, planId FROM ?:adlss_subscribables WHERE objectType = ?s AND objectId = ?i',
+				Subscribable::OBJECT_TYPE_PRODUCT_OPTION,
+				$optionId
+			);
+			if ( ! empty( $sub ) ) {
+				$options[ $productId ][ $optionId ]['subscribableId'] = $sub['subscribableId'];
+				$options[ $productId ][ $optionId ]['planId'] = $sub['planId'];
+			}
+		}
+	}
+}
+
 
 /**
  * @param $status_to
@@ -86,25 +147,30 @@ function fn_adls_subscriptions_change_order_status($status_to, $status_from, $or
  * @param $cart
  * @param $auth
  *
- * @return bool
+ * @return void
  */
 function fn_adls_subscriptions_place_order($order_id, $action, $order_status, $cart, $auth)
 {
     if (empty($cart['products'])) {
-        return false;
+        return;
     }
 
-    return SubscriptionManager::instance()->onPlaceOrder($order_id, $action, $order_status, $cart, $auth);
+    SubscriptionManager::instance()->onPlaceOrder($order_id, $action, $order_status, $cart, $auth);
 }
 
 function fn_adls_subscriptions_get_order_info(&$order, $additional_data)
 {
-
-	if ( ! empty( $GLOBALS['_adlss_order_id'] ) ) {
-		$order = fn_adlss_emulate_order( $GLOBALS['_adlss_order_id'], $GLOBALS['_adlss_order'] );
-	} else {
-	    SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
+	if ( empty( $order['products'] ) ) {
+		return;
 	}
+	foreach ( $order['products'] as $itemId => $item ) {
+		if ( ! empty( $order['products'][ $itemId ]['extra'] )
+		     && ! empty( $order['products'][ $itemId ]['extra']['custom_product_name'] ) ) {
+			$order['products'][ $itemId ]['product'] = $order['products'][ $itemId ]['extra']['custom_product_name'];
+		}
+	}
+
+	SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
 }
 
 
@@ -119,36 +185,73 @@ function fn_settings_variants_addons_adls_subscriptions_order_status_on_suspend(
  * Helpers
  */
 
-function fn_adlss_spoof_order_id( $adlss_order_id ) {
-	$GLOBALS['_adlss_order_id'] = $adlss_order_id;
-	$GLOBALS['_adlss_order'] = $_SESSION['cart'];
-}
-function fn_adlss_emulate_order( $adlss_order_id, $cart ) {
-
-	$lang_code = $cart['lang_code'];
-	foreach ( $cart['products'] as $k => $v) {
-		$cart['products'][$k]['subtotal'] = $v['price'];
-		$cart['products'][$k]['product_options'] = fn_get_selected_product_options_info($v['extra']['product_options'], $lang_code);
-	}
-
-	$order_info = array(
-		'order_id'      => $adlss_order_id,
-		'shipping_cost' => $cart['shipping_cost'],
-		'total'         => $cart['total'],
-		'products'         => $cart['products'],
-		'repaid'        => 0,
-	);
-
-	$order_info = array_merge( $order_info, $cart['user_data'] );
-	$order_info['status'] = 'P';
-
-
-//	aa( $order_info, 1 );
-
-	return $order_info;
-}
 function fn_adlss_is_subscribable($object)
 {
     return SubscribableManager::instance()->isSubscribable($object);
-    
+
+}
+
+function fn_adlss_add_to_cart_renewal_subscription( Subscription $subscription, $item, $cart, $auth ) {
+
+	$productId = $subscription->getProductId();
+
+	// Prepare product data for cart
+	//	fn_clear_cart($cart);
+	$name = fn_adlss_format_product_title($item['product_id'], $item['product']);
+	fn_define( 'ORDER_MANAGEMENT', true );
+	$amount = 1;
+	$product_data = array(
+		'product_id' => $productId,
+		'amount' => $amount,
+		'product_options' => $item['extra']['product_options'],
+		'price' => 0,
+		'stored_price' => 'Y',
+		'extra' => array(
+			'custom_product_name' => $name,
+			'stored_price' => 0,
+			'subscription_id' => $subscription->getId()
+		)
+	);
+
+
+	$product_options = fn_get_product_options(array($productId), CART_LANGUAGE, true);
+	$subscribableOptionId = '';
+	foreach ( $product_options[$productId] as $optionId => $option ) {
+		if ( !empty( $option['planId'] ) &&  $option['planId'] == $subscription->getPlanId() ) {
+			$subscribableOptionId = $optionId;
+			break;
+		}
+	}
+
+	if ( empty( $subscribableOptionId ) ) {
+		throw new \Exception('Unable to find $subscribableOptionId');
+	}
+	$defaultCycleVariantId = null;
+
+	foreach ( $product_options[$productId][ $subscribableOptionId ]['variants'] as $variant ) {
+		if ( ! empty( $variant['modifier'] ) && $variant['modifier'] == $subscription->getAmount() ) {
+			$defaultCycleVariantId = $variant['variant_id'];
+			break;
+		}
+	}
+
+
+	$product_data['product_options'][ $subscribableOptionId ] = $defaultCycleVariantId;
+
+	$price = $product_data['price'];
+	$price = fn_apply_options_modifiers($product_data['product_options'], $price, 'P', array(), array('product_data' => $product_data));
+	$product_data['price'] = $price;
+	$product_data['extra']['price'] = $price;
+	$product_data['extra']['stored_price'] = 'Y';
+	$request_products[ $productId ] = $product_data;
+
+
+	// Add product to cart & recalculate
+	$prev_cart_products = empty($cart['products']) ? array() : $cart['products'];
+	if (fn_add_product_to_cart($request_products, $cart, $auth) == array()) {
+		unset($request_products['products'][$productId]);
+	}
+	fn_calculate_cart_content($cart, $auth, 'S', true, 'F', true);
+
+	return $cart;
 }

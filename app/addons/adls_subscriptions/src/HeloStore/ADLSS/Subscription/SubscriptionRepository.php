@@ -29,11 +29,12 @@ class SubscriptionRepository extends EntityRepository
 	 * @param $orderId
 	 * @param $itemId
 	 * @param integer $productId
+	 * @param float $amount
 	 * @param $companyId
 	 *
 	 * @return bool|int
 	 */
-	public function create($userId, $planId, $orderId, $itemId, $productId, $companyId)
+	public function create($userId, $planId, $orderId, $itemId, $productId, $amount, $companyId)
 	{
 		$date = Utils::instance()->getCurrentDate();
 
@@ -45,6 +46,7 @@ class SubscriptionRepository extends EntityRepository
 			'orderId' => $orderId,
 			'itemId' => $itemId,
 			'productId' => $productId,
+			'amount' => $amount,
 			'companyId' => $companyId,
             'status' => Subscription::STATUS_INACTIVE,
 			'startDate' => null,
@@ -55,7 +57,8 @@ class SubscriptionRepository extends EntityRepository
 			'createdAt' => $date->format('Y-m-d H:i:s'),
 			'updateAt' => $date->format('Y-m-d H:i:s'),
 		);
-		$subscriptionId = db_query('INSERT INTO ' . $this->table . ' ?e', $data);
+		$query = db_quote( 'INSERT INTO ' . $this->table . ' ?e', $data );
+		$subscriptionId = db_query($query);
 
 		return $subscriptionId;
 	}

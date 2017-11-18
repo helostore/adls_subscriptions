@@ -173,7 +173,7 @@ class SubscribableRepository extends EntityRepository
     public function findProductSubscribableOptions($productId)
     {
         $query = db_quote('
-            SELECT po.*
+            SELECT po.option_id
             FROM ?:product_options AS po 
             LEFT JOIN ?:product_global_option_links AS gpo ON gpo.option_id = po.option_id AND gpo.product_id = ?i
             LEFT JOIN ?p AS sl ON sl.objectType = ?s AND sl.objectId = po.option_id

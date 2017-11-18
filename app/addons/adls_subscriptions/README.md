@@ -19,10 +19,10 @@ Setup
 Crons
 -----
 # Check subscription expiration hourly
-30 * * * * php admin.php --dispatch=adls_cycle.check.expiration
+30 * * * * php hsw.php --dispatch=adls_cycle.check.expiration
 
 # Check subscription alerts once a day
-0 15 * * * php admin.php --dispatch=adls_cycle.check.alerts
+0 15 * * * php hsw.php --dispatch=adls_cycle.check.alerts
 
 
 Migration to subscription tier

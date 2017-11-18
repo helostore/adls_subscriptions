@@ -70,6 +70,11 @@ class Subscription extends Entity
      */
     protected $companyId;
 
+	/**
+	 * @var float
+	 */
+	protected $amount;
+
     /**
      * @var string
      */
@@ -460,6 +465,24 @@ class Subscription extends Entity
 
         return $this;
     }
+
+	/**
+	 * @return float
+	 */
+	public function getAmount() {
+		return $this->amount;
+	}
+
+	/**
+	 * @param float $amount
+	 *
+	 * @return $this
+	 */
+	public function setAmount( $amount ) {
+		$this->amount = $amount;
+
+		return $this;
+	}
 
     /**
      * Methods

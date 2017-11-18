@@ -37,6 +37,30 @@ class CycleManager extends Manager
     }
 
 	/**
+	 * @param $action
+	 */
+	public function runCheck($action) {
+		$subscriptionRepository = SubscriptionRepository::instance();
+		list($subscriptions, ) = $subscriptionRepository->find(array(
+			'status' => Subscription::STATUS_ACTIVE
+		));
+		if (empty($subscriptions)) {
+			return;
+		}
+
+		/** @var Subscription $subscription */
+		foreach ($subscriptions as $subscription) {
+			if ( $action === 'expiration' ) {
+				$this->checkExpiration($subscription);
+			}
+
+			if ( $action === 'alerts' ) {
+				$this->checkAlerts($subscription);
+			}
+		}
+	}
+
+	/**
 	 * @param Subscription $subscription
 	 *
 	 * @return bool

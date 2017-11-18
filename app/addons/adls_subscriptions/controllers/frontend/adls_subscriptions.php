@@ -12,217 +12,92 @@
  * @version    $Id$
  */
 
+use HeloStore\ADLSS\Subscription\SubscriptionManager;
 use HeloStore\ADLSS\Subscription\SubscriptionRepository;
 use Tygh\Registry;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
-// If user is not logged in and trying to see the order, redirect him to login form
-if (empty($auth['user_id'])) {
-	return array(CONTROLLER_STATUS_REDIRECT, 'auth.login_form?return_url=' . urlencode(Registry::get('config.current_url')));
-}
-
-
-/**
- * Add subscription renewal to cart
- *
- * @param array $product_data array with data for the certificate to add)
- * @param array $auth user session data
- * @return array array with gift certificate ID and data if addition is successful and empty array otherwise
- */
-function fn_add_adls_subscription_to_cart($product_data, &$auth)
-{
-	if (empty($product_data) || !is_array($product_data)) {
-		return array();
+if ( $mode === 'add' ) {
+	$subscriptionId = 0;
+	if ( ! empty( $_REQUEST['subscription_id'] ) ) {
+		$subscriptionId = intval( $_REQUEST['subscription_id'] );
 	}
 
-//	fn_correct_gift_certificate($product_data);
-//	$gift_cert_cart_id = fn_generate_gift_certificate_cart_id($product_data);
-
-	if (isset($product_data['products']) && !empty($product_data['products'])) {
-		foreach ((array) $product_data['products'] as $pr_id => $product_item) {
-			$product_data = array();
-			$product_data[$product_item['product_id']] = array(
-				'product_id' => $product_item['product_id'],
-				'amount' => $product_item['amount'],
-				'extra' => array('parent' => array('certificate' => $gift_cert_cart_id))
-			);
-			if (isset($product_item['product_options'])) {
-				$product_data[$product_item['product_id']]['product_options'] = $product_item['product_options'];
-			}
-
-			if (fn_add_product_to_cart($product_data, $_SESSION['cart'], $auth) == array()) {
-				unset($product_data['products'][$pr_id]);
-			}
-		}
-	}
-
-	return array (
-		$gift_cert_cart_id,
-		$product_data
-	);
-}
-
-if ($mode == 'renew') {
-
-	$subscriptionRepository = SubscriptionRepository::instance();
-	$userId = $auth['user_id'];
-	$id = intval($_REQUEST['id']);
-	if ( empty( $id ) ) {
+	if ( empty( $subscriptionId ) ) {
 		return array(CONTROLLER_STATUS_NO_PAGE);
 	}
 
+
+
+	// Fetch needed data
+	$subscriptionRepository = SubscriptionRepository::instance();
+	$userId = $auth['user_id'];
 	$subscription = $subscriptionRepository->findOne(array(
 		'one' => true,
 		'userId' => $userId,
-		'id' => $id
+		'id' => $subscriptionId
 	));
-
 	if ( empty( $subscription ) ) {
 		return array(CONTROLLER_STATUS_NO_PAGE);
 	}
-
 	$productId = $subscription->getProductId();
+	$itemId = $subscription->getItemId();
+	$subscriptionManager = SubscriptionManager::instance();
+	$item  = $subscriptionManager->getSubscriptionItem($subscription);
+	if ( empty( $item ) ) {
+		return array(CONTROLLER_STATUS_DENIED);
+	}
+
+	$cart = &$_SESSION['cart'];
+	$cart = fn_adlss_add_to_cart_renewal_subscription( $subscription, $item, $cart, $auth );
 
 
-	$product_data = array();
+	$product_cnt = 0;
+	$added_products = array();
+	foreach ($cart['products'] as $key => $data) {
+		if (empty($prev_cart_products[$key]) || !empty($prev_cart_products[$key]) && $prev_cart_products[$key]['amount'] != $data['amount']) {
+			$added_products[$key] = $data;
+			$added_products[$key]['product_option_data'] = fn_get_selected_product_options_info($data['product_options']);
+			if (!empty($prev_cart_products[$key])) {
+				$added_products[$key]['amount'] = $data['amount'] - $prev_cart_products[$key]['amount'];
+			}
+			$product_cnt += $added_products[$key]['amount'];
+		}
+	}
 
-	if (fn_allowed_for('ULTIMATE') && Registry::get('runtime.company_id')) {
-		$product_data['company_id'] = Registry::get('runtime.company_id');
+	if (!empty($added_products)) {
+		Tygh::$app['view']->assign('added_products', $added_products);
+		if (Registry::get('config.tweaks.disable_dhtml') && Registry::get('config.tweaks.redirect_to_cart')) {
+			Tygh::$app['view']->assign('continue_url', (!empty($_REQUEST['redirect_url']) && empty($_REQUEST['appearance']['details_page'])) ? $_REQUEST['redirect_url'] : $_SESSION['continue_url']);
+		}
+
+		$msg = Tygh::$app['view']->fetch('views/checkout/components/product_notification.tpl');
+		fn_set_notification('I', __($product_cnt > 1 ? 'products_added_to_cart' : 'product_added_to_cart'), $msg, 'I');
+		$cart['recalculate'] = true;
+	} else {
+		fn_set_notification('N', __('notice'), __('product_in_cart'));
 	}
 
 
-
-
-
-
-	$cart = array();
-	fn_clear_cart($cart);
-	unset($cart['product_groups']);
-
-	$product_data[$productId] = array(
-		'product_id' => $productId,
-		'amount' => 1,
-		'extra' => array()
-	);
-	if (isset($product_item['product_options'])) {
-//		$product_data[$productId]['product_options'] = $product_item['product_options'];
+	if (!empty($_SERVER['HTTP_REFERER'])) {
+		return array( CONTROLLER_STATUS_REDIRECT, $_SERVER['HTTP_REFERER'] );
 	}
 
-	if (fn_add_product_to_cart($product_data, $cart, $auth) == array()) {
-		unset($product_data['products'][$productId]);
-	}
-
-
-
-
-
-
-
-	// Set default payment
-	$params = array(
-		'usergroup_ids' => $auth['usergroup_ids'],
-	);
-	$payments = fn_get_payments($params);
-	$first_method = reset($payments);
-	$cart['payment_id'] = $first_method['payment_id'];
-
-	// Get payment methods list
-	$payment_methods = fn_prepare_checkout_payment_methods($cart, $auth);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	fn_calculate_cart_content($cart, $auth, 'S', true, 'F', true);
-
-//	fn_save_cart_content($_SESSION['cart'], $auth['user_id']);
-
-//	aa($cart,1);
-
-//	list($gift_cert_id, $gift_cert) = fn_add_adls_subscription_to_cart($product_data, $auth);
-
-
-
-	$display_steps = array(
-		'step_one'   => false,
-		'step_two'   => false,
-		'step_three' => false,
-		'step_four'  => true,
-	);
-	$cart['edit_step'] = 'step_four';
-
-	Tygh::$app['view']->assign('edit', 'step_four');
-	Tygh::$app['view']->assign('display_steps', $display_steps);
-	Tygh::$app['view']->assign('subscription', $subscription);
-//	Tygh::$app['view']->assign('payment_methods', $payment_methods);
-	Tygh::$app['view']->assign('cart', $cart);
-	Tygh::$app['view']->assign('payment_methods', $payment_methods);
-
-
-
-
-
-//	$cart = array();
-//
-//	// Set default payment
-//	$params = array(
-//		'usergroup_ids' => $auth['usergroup_ids'],
-//	);
-//	$payments = fn_get_payments($params);
-//	$first_method = reset($payments);
-//	$cart['payment_id'] = $first_method['payment_id'];
-//
-//	// Get payment methods list
-//	$payment_methods = fn_prepare_checkout_payment_methods($cart, $auth);
-//
-//	Tygh::$app['view']->assign('subscription', $subscription);
-//	Tygh::$app['view']->assign('payment_methods', $payment_methods);
-//	Tygh::$app['view']->assign('cart', $cart);
+	return array(CONTROLLER_STATUS_OK, 'checkout.cart');
 }
 
-//if ($mode == 'renew') {
-//
-//	$subscriptionRepository = SubscriptionRepository::instance();
-//	$userId = $auth['user_id'];
-//	$id = intval($_REQUEST['id']);
-//	if ( empty( $id ) ) {
-//		return array(CONTROLLER_STATUS_NO_PAGE);
-//	}
-//
-//	$subscription = $subscriptionRepository->findOne(array(
-//		'one' => true,
-//		'userId' => $userId,
-//		'id' => $id
-//	));
-//
-//	if ( empty( $subscription ) ) {
-//		return array(CONTROLLER_STATUS_NO_PAGE);
-//	}
-//
-//	$cart = array();
-//
-//	// Set default payment
-//	$params = array(
-//		'usergroup_ids' => $auth['usergroup_ids'],
-//	);
-//	$payments = fn_get_payments($params);
-//	$first_method = reset($payments);
-//	$cart['payment_id'] = $first_method['payment_id'];
-//
-//	// Get payment methods list
-//	$payment_methods = fn_prepare_checkout_payment_methods($cart, $auth);
-//
-//	Tygh::$app['view']->assign('subscription', $subscription);
-//	Tygh::$app['view']->assign('payment_methods', $payment_methods);
-//	Tygh::$app['view']->assign('cart', $cart);
-//}
+
+if ( $mode === 'manage' ) {
+	$userId = $auth['user_id'];
+	$subscriptionRepository = SubscriptionRepository::instance();
+	$userId = $auth['user_id'];
+	list($subscriptions, $search) = $subscriptionRepository->find(array(
+		'userId' => $userId
+	));
+
+
+	Tygh::$app['view']->assign('subscriptions', $subscriptions);
+	Tygh::$app['view']->assign('search', $search);
+
+}
