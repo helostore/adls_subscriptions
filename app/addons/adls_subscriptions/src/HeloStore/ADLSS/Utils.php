@@ -50,7 +50,6 @@ class Utils extends Singleton
     public function overridePresentDate(DateTime $date)
     {
         global $_timeTravelDate;
-
         $_timeTravelDate = $date;
 
         return $this;

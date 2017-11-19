@@ -494,6 +494,8 @@ class SubscriptionManager extends Manager
 			}
 		}
 
+		fn_set_hook( 'adlss_delete_subscription', $subscription );
+
 		return $this->repository->delete( $subscription );
 	}
 
