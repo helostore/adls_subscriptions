@@ -1,5 +1,15 @@
 [
     {
+        "version": "0.0.7",
+        "releaseDate": "2017-11-19 11:49:31",
+        "releaseTimestamp": "1511092171",
+        "hash": "06b008f24d3a95a4465d95fdaba3ff2b3af0b4d0",
+        "commits": [
+            "[2017-11-19] Bumped version to 0.0.7",
+            "[2017-11-19]\tBumped version to 0.0.6"
+        ]
+    },
+    {
         "version": "0.0.5",
         "releaseDate": "2017-11-18 04:53:34",
         "releaseTimestamp": "1511024014",

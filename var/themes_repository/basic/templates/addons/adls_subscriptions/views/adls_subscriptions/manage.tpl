@@ -12,11 +12,10 @@
 {/if}
 {if !$config.tweaks.disable_dhtml}
     {assign var="ajax_class" value="cm-ajax"}
-
 {/if}
 
 {include file="common/pagination.tpl"}
-
+{capture name="columnsNumber"}6{/capture}
 <table class="ty-table ty-subscriptions-search">
     <thead>
     <tr>
@@ -57,7 +56,7 @@
         </tr>
     {foreachelse}
         <tr class="ty-table__no-items">
-            <td colspan="5"><p class="ty-no-items">{__("text_no_items")}</p></td>
+            <td colspan="{$smarty.capture.columnsNumber}"><p class="ty-no-items">{__("no_items")}</p></td>
         </tr>
     {/foreach}
 </table>
