@@ -1,1 +1,1 @@
-{$subscription->getStatusLabel()}
+{$subscription->getStatusLabel()}{if $subscription->isExpired()} (expired){/if}
