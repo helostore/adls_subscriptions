@@ -250,6 +250,7 @@ class SubscriptionRepository extends EntityRepository
 	public function findOne($params = array())
 	{
 		$params['one'] = true;
+		$params['extended'] = true;
         list($subscription, ) = $this->find($params);
 
 		return $subscription;
@@ -263,6 +264,7 @@ class SubscriptionRepository extends EntityRepository
 	public function findOneById($id)
 	{
 		return $this->findOne(array(
+			'extended' => true,
 			'id' => $id
 		));
 	}

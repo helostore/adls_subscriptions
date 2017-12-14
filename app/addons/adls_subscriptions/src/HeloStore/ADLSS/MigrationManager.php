@@ -59,13 +59,14 @@ class MigrationManager extends Manager
 	 */
     public function migrateOrder($order)
     {
+
         if (!in_array($order['status'], array('P'))) {
             return false;
         }
 
         $subscriptionRepository = SubscriptionRepository::instance();
         $orderId = $order['order_id'];
-        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
+        list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId, array('extended' => true));
 
         if (!empty($subscriptions)) {
             fn_print_r('Order #' . $orderId . ' has ' . count($subscriptions) . ' subscriptions, skipping..');
@@ -139,8 +140,8 @@ class MigrationManager extends Manager
         }
         $cart['order_id'] = $order['order_id'];
 
-
         $upgrade = false;
+
         foreach ($cart['products'] as $k => &$product) {
 
             $cart['products'][$k]['stored_price'] = 'Y';
@@ -193,6 +194,7 @@ class MigrationManager extends Manager
 		        $cart['products'][$k]['product_options'][$this->optionId] = $this->variantId;
 	        }
         }
+
         unset($product);
         if (!$upgrade) {
             fn_print_r('Order #' . $cart['order_id'] . ', nothing to upgrade, skipping');
@@ -200,7 +202,6 @@ class MigrationManager extends Manager
         }
 
         list ($cart_products, $product_groups) = fn_calculate_cart_content($cart, $customer_auth);
-
 
         if ($initialOrderTotal == 0) {
             $cart['total'] = 0;
@@ -210,6 +211,7 @@ class MigrationManager extends Manager
         $cart['notes'] = 'Order automatically migrated to subscription tier on ' . date('d.m.Y');
 
         $cart['status'] = $initialStatus;
+
         list($order_id, $process_payment) = fn_place_order($cart, $customer_auth, $action, $order['user_id']);
 
         $currentStatus = db_get_field('SELECT status FROM ?:orders WHERE order_id = ?i', $order_id);

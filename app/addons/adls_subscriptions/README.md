@@ -28,6 +28,14 @@ Crons
 Migration to subscription tier
 ------------------------------
 
+```
+TRUNCATE TABLE cscart_adlss_subscriptions;
+TRUNCATE TABLE cscart_adlss_subscription_payments;
+TRUNCATE TABLE cscart_adls_releases;
+TRUNCATE TABLE cscart_adls_release_links;
+```
+
+
 Go to http://local.helostore.com/hsw.php?dispatch=adls_migrate.view and run the partially automated migration scripts.
 
 Or run the scripts independently, one by one:

@@ -151,7 +151,7 @@ function fn_adls_subscriptions_change_order_status($status_to, $status_from, $or
  */
 function fn_adls_subscriptions_place_order($order_id, $action, $order_status, $cart, $auth)
 {
-    if (empty($cart['products'])) {
+	if (empty($cart['products'])) {
         return;
     }
 

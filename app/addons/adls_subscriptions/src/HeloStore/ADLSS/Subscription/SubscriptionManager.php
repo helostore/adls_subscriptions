@@ -107,6 +107,12 @@ class SubscriptionManager extends Manager
                     'productId' => $productId,
                     'extended' => true
                 ));
+                // So this is an order item that SHOULD contain a subscription.
+	            // If there's no subscription yet, assume it's a new order whose subscription must be set up.
+	            // Mark it as such, so that the License can be setup regardless if the Subscription has been created first.
+	            if ( empty( $product['subscription'] ) ) {
+		            $order['adls_subscription_setup_pending'] = true;
+	            }
             }
             unset($option);
         }
@@ -267,7 +273,6 @@ class SubscriptionManager extends Manager
                         $subscription = $subscriptionRepository->findOneById($subscriptionId);
                         $this->begin($subscription, $initialPaidPeriod);
                         fn_set_hook('adls_subscriptions_post_begin', $subscription, $product, $orderInfo);
-
                     } else {
                         // Activate existing subscription
                         $this->resume($subscription);

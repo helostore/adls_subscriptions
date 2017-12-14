@@ -64,7 +64,7 @@ class Subscription extends Entity
     /**
      * @var integer
      */
-    protected $releaseId;
+    protected $licenseId;
 
     /**
      * @var integer
@@ -232,19 +232,19 @@ class Subscription extends Entity
     /**
      * @return int
      */
-    public function getReleaseId()
+    public function getLicenseId()
     {
-        return $this->releaseId;
+        return $this->licenseId;
     }
 
     /**
-     * @param int $releaseId
+     * @param int $licenseId
      *
      * @return $this
      */
-    public function setReleaseId($releaseId)
+    public function setLicenseId($licenseId)
     {
-        $this->releaseId = $releaseId;
+        $this->licenseId = $licenseId;
 
         return $this;
     }
@@ -504,6 +504,7 @@ class Subscription extends Entity
 	 */
 	public function setLicense( $license ) {
 		$this->license = $license;
+		$this->setLicenseId( $license->getId() );
 
 		return $this;
 	}
