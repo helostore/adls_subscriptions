@@ -238,7 +238,7 @@ class MigrationManager extends Manager
             return true;
         }
         $alert = array();
-        $alert['subject'] = $alert['title'] = 'Order #' . $order['order_id'] . ' Update';
+        $alert['subject'] = $alert['title'] = 'Order #' . $order['order_id'] . '';
         $alert['subtitle'] = '';
 //        $alert['subtitle'] = 'This shouldn\'t affect the current state of your order.';
 //        $alert['subtitle'] = 'HELOstore is moving to subscription-based products.';
