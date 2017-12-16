@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <addon scheme="3.0">
     <id>adls_subscriptions</id>
-    <version>0.0.13</version>
+    <version>0.0.14</version>
     <name>ADLS Subscriptions</name>
     <description>Adds subscriptions feature to CS-Cart</description>
     <priority>1010112</priority>
