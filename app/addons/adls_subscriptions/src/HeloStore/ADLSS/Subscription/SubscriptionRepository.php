@@ -205,7 +205,6 @@ class SubscriptionRepository extends EntityRepository
 		foreach ($items as $k => $v) {
 			$items[$k] = new Subscription($v);
 		}
-
 		fn_set_hook('adlss_get_subscriptions_post', $items, $params);
 
 		if (isset($params['one'])) {

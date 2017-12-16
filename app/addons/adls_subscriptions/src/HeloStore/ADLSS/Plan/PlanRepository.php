@@ -92,6 +92,10 @@ class PlanRepository extends EntityRepository
 			$condition[] = db_quote('plan.status IN (?a)', $params['status']);
 		}
 
+		if (isset($params['cycle'])) {
+			$condition[] = db_quote('plan.cycle = ?i', $params['cycle']);
+		}
+
 		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
 
 

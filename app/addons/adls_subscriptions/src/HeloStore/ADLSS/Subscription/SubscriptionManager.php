@@ -190,10 +190,10 @@ class SubscriptionManager extends Manager
 
             foreach ($product['product_options'] as $option) {
                 $productOption = fn_get_product_option_data($option['option_id'], $option['product_id']);
-
                 if (!$subscribableManager->isSubscribable($productOption)) {
                     continue;
                 }
+
                 $objectId = $option['option_id'];
                 $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
 

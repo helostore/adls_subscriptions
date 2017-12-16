@@ -146,6 +146,21 @@ class SubscribableRepository extends EntityRepository
 	 * @param $objectId
 	 * @param $objectType
 	 *
+	 * @return array
+	 *
+	 */
+	public function findByObject($objectId, $objectType)
+	{
+		return $this->find(array(
+			'objectId' => $objectId,
+			'objectType' => $objectType
+		));
+	}
+
+	/**
+	 * @param $objectId
+	 * @param $objectType
+	 *
 	 * @return Subscribable|null
 	 *
 	 */

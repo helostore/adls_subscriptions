@@ -504,7 +504,9 @@ class Subscription extends Entity
 	 */
 	public function setLicense( $license ) {
 		$this->license = $license;
-		$this->setLicenseId( $license->getId() );
+		if ( ! empty( $license ) ) {
+			$this->setLicenseId( $license->getId() );
+		}
 
 		return $this;
 	}
