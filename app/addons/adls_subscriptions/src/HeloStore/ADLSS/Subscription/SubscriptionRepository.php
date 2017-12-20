@@ -190,7 +190,7 @@ class SubscriptionRepository extends EntityRepository
         if (isset($params['one'])) {
             $limit = 'LIMIT 0,1';
         } else if (!empty($params['items_per_page'])) {
-            $query = db_quote('SELECT COUNT(DISTINCT subscription.id) FROM ?p AS subscription ?p ?p GROUP BY subscription.id ?p', $this->table, $joins, $condition, $limit);
+            $query = db_quote('SELECT COUNT(DISTINCT subscription.id) FROM ?p AS subscription ?p ?p ?p', $this->table, $joins, $condition, $limit);
             $params['total_items'] = db_get_field($query);
             $limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
         }

@@ -32,7 +32,6 @@ if ($mode == 'manage') {
 	$params['extended'] = true;
 	$params['items_per_page'] = !empty($params['items_per_page']) ? $params['items_per_page'] : Registry::get('settings.Appearance.admin_elements_per_page');
 	list($subscriptions, $search) = $subscriptionRepository->find($params);
-
 	Tygh::$app['view']->assign('subscriptions', $subscriptions);
 	Tygh::$app['view']->assign('search', $search);
 }

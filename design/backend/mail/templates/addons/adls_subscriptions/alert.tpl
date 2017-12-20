@@ -48,7 +48,7 @@ Sizes: [
         table[id=bodyTable] {width:100%!important;margin:auto;max-width:500px!important;color:#7A7A7A;font-weight:normal;}
         img, a img{border:0; outline:none; text-decoration:none;height:auto; line-height:100%;}
         a {text-decoration:none !important;border-bottom: 1px solid;}
-        h1, h2, h3, h4, h5, h6{color:#5F5F5F; font-weight:normal; font-family:Helvetica; font-size:20px; line-height:125%; text-align:Left; letter-spacing:normal;margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0;}
+        h1, h2, h3, h4, h5, h6{color:#000000; font-weight:normal; font-family:Helvetica; font-size:20px; line-height:125%; text-align:Left; letter-spacing:normal;margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0;}
             /* CLIENT-SPECIFIC STYLES */
         .ReadMsgBody{width:100%;} .ExternalClass{width:100%;} /* Force Hotmail/Outlook.com to display emails at full width. */
         .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div{line-height:100%;} /* Force Hotmail/Outlook.com to display line heights normally. */
@@ -196,7 +196,7 @@ Sizes: [
                     Its width can be set to 100% for a color band
                     that spans the width of the page.
                 -->
-                <table bgcolor="#FEFEFE" border="0" cellpadding="0" cellspacing="0" width="500" id="emailHeader">
+                <table bgcolor="#FEFEFE" border="0" cellpadding="0" cellspacing="0" width="568" id="emailHeader">
 
                     <!-- HEADER ROW // -->
                     <tr>
@@ -206,9 +206,9 @@ Sizes: [
                                 <tr>
                                     <td align="center" valign="top">
                                         <!-- FLEXIBLE CONTAINER // -->
-                                        <table border="0" cellpadding="10" cellspacing="0" width="500" class="flexibleContainer">
+                                        <table border="0" cellpadding="10" cellspacing="0" width="568" class="flexibleContainer">
                                             <tr>
-                                                <td valign="top" width="500" class="flexibleContainerCell">
+                                                <td valign="top" width="568" class="flexibleContainerCell">
 
                                                     <!-- CONTENT TABLE // -->
                                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -268,7 +268,7 @@ Sizes: [
                     Its width can be set to 100% for a color band
                     that spans the width of the page.
                 -->
-                <table bgcolor="#FFFFFF"  border="0" cellpadding="0" cellspacing="0" width="500" id="emailBody">
+                <table bgcolor="#FFFFFF"  border="0" cellpadding="0" cellspacing="0" width="568" id="emailBody">
 
                     <!-- MODULE ROW // -->
                     <!--
@@ -284,7 +284,7 @@ Sizes: [
                                 tables centered in the emailBody table,
                                 in case its width is set to 100%.
                             -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#3498db">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#EFEFEF">
                                 <tr>
                                     <td align="center" valign="top">
                                         <!-- FLEXIBLE CONTAINER // -->
@@ -294,9 +294,9 @@ Sizes: [
                                             Most content tables within can then be
                                             given 100% widths.
                                         -->
-                                        <table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="568" class="flexibleContainer">
                                             <tr>
-                                                <td align="center" valign="top" width="500" class="flexibleContainerCell">
+                                                <td align="center" valign="top" width="568" class="flexibleContainerCell">
 
                                                     <!-- CONTENT TABLE // -->
                                                     <!--
@@ -304,14 +304,17 @@ Sizes: [
                                                         that's entirely separate from the structural
                                                         framework of the email.
                                                     -->
-                                                    <table border="0" cellpadding="30" cellspacing="0" width="100%">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 60px;">
                                                         <tr>
                                                             <td width="{$logos.mail.image.image_x}" align="center" valign="top" class="textContent">
                                                                 <img src="{$logos.mail.image.image_path}" width="{$logos.mail.image.image_x}" height="{$logos.mail.image.image_y}" border="0" alt="{$logos.mail.image.alt}" />
                                                             </td>
                                                             <td align="center" valign="top" class="textContent">
-                                                                <h1 style="color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">{$alert.title|default:$alert.subject}</h1>
+                                                                <h1 style="color:#333333;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">{$alert.title|default:$alert.subject}</h1>
                                                                 <h2 style="text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">{$alert.subtitle|default:''}</h2>
+                                                                {if !empty($order)}
+                                                                    <div style="color: #666;"><small>From {$order.timestamp|date_format:"`$settings.Appearance.date_format`"}</small></div>
+                                                                {/if}
                                                                 {*<div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.</div>*}
                                                             </td>
                                                         </tr>
@@ -334,19 +337,18 @@ Sizes: [
                     <tr>
                         <td align="center" valign="top">
                             <!-- CENTERING TABLE // -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F8F8F8">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FCFCFC">
                                 <tr>
                                     <td align="center" valign="top">
                                         <!-- FLEXIBLE CONTAINER // -->
-                                        <table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="568" class="flexibleContainer">
                                             <tr>
-                                                <td align="center" valign="top" width="500" class="flexibleContainerCell">
-                                                    <table border="0" cellpadding="30" cellspacing="0" width="100%">
+                                                <td align="center" valign="top" width="568" class="flexibleContainerCell">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tr>
-                                                            <td align="center" valign="top" style="border: 1px solid #eee;">
+                                                            <td align="center" valign="top" style="border: 1px solid #eee; padding: 30px 60px 60px 60px; ">
 
                                                                 {include file="addons/adls_subscriptions/alerts/`$alert.template`"}
-
 
                                                             </td>
                                                         </tr>
@@ -372,7 +374,7 @@ Sizes: [
                     Its width can be set to 100% for a color band
                     that spans the width of the page.
                 -->
-                <table bgcolor="#FEFEFE" border="0" cellpadding="0" cellspacing="0" width="500" id="emailFooter">
+                <table bgcolor="#FEFEFE" border="0" cellpadding="0" cellspacing="0" width="568" id="emailFooter">
 
                     <!-- FOOTER ROW // -->
                     <!--
@@ -387,9 +389,9 @@ Sizes: [
                                 <tr>
                                     <td align="center" valign="top">
                                         <!-- FLEXIBLE CONTAINER // -->
-                                        <table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="568" class="flexibleContainer">
                                             <tr>
-                                                <td align="center" valign="top" width="500" class="flexibleContainerCell">
+                                                <td align="center" valign="top" width="568" class="flexibleContainerCell">
                                                     <table border="0" cellpadding="30" cellspacing="0" width="100%">
                                                         <tr>
                                                             <td valign="top" bgcolor="#FEFEFE">
