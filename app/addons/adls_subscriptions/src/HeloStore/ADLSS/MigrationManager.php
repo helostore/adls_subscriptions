@@ -202,6 +202,18 @@ class MigrationManager extends Manager
 
         list ($cart_products, $product_groups) = fn_calculate_cart_content($cart, $customer_auth);
 
+
+        // Check if tem IDs has been changed during the migration
+		$initialIds = array_keys( $order['products'] );
+		$currentIds = array_keys( $cart['products'] );
+		$diffIds = array_merge(array_diff( $initialIds, $currentIds ), array_diff( $currentIds, $initialIds ));
+		if ( ! empty( $diffIds ) ) {
+			fn_print_r( 'Warning: cart item IDs changed during migrations, diff: ' . implode(', ', $diffIds) );
+//			aa( $initialIds, $currentIds );
+//			aa( $diffIds, 1 );
+		}
+
+
         if ($initialOrderTotal == 0) {
             $cart['total'] = 0;
         }

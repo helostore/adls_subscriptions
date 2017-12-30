@@ -123,7 +123,6 @@ class SubscriptionManager extends Manager
 
     public function onPlaceOrder($orderId, $action, $orderStatus, $cart, $auth)
     {
-
         // If we're editing an order and an item's options have changed, its item_id will change too
         // So update item ID in relevant subscriptions
         $subscribableRepository = SubscribableRepository::instance();
@@ -165,7 +164,6 @@ class SubscriptionManager extends Manager
         if (!$status) {
             $status = $orderInfo['status'];
         }
-
         $paidStatuses = array('P');
         $isPaidStatus = in_array($status, $paidStatuses);
 
