@@ -12,8 +12,9 @@
             <h3 mc:edit="header" style="color:#000000;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;">Your order has been migrated to a subscription tier.</h3>
             <div mc:edit="body" style="text-align:left;font-family:Helvetica,Arial,sans-serif;font:18px/26px sans-serif;margin-bottom:0;color:#000000;">
 
-                <p style="margin-bottom: 25px;">HELOstore is moving from one-time payments to subscription-based payments.<br>
-                For you, this means that in the future you will have to renew your software upgrade subscription for some of our products, in order to benefit for future upgrades.</p>
+                <p style="margin-bottom: 25px;">HELOstore is moving from one-time payments to subscription-based payments.<p>
+                <p style="margin-bottom: 25px;"><strong>For you</strong>, this means that in the future you will have to renew your software upgrade subscription for some of our products, in order to benefit for future upgrades.</p>
+                <p style="margin-bottom: 25px;"><strong>For us</strong>, this strategy would provide more sustainability, and the ability to deliver better products and faster updates.</p>
                 <p style="margin-bottom: 25px;">However, because we appreciate our existing customers, and because we don't want to take you by surprise, <b>we are offering you a complimentary 12 months subscription</b> to our future upgrades to all of the products in this order.</p>
                 <p style="margin-bottom: 25px;">These products are:</p>
 
@@ -21,7 +22,7 @@
                     <ul style="padding-left: 0;">
                     {foreach from=$subscriptions item='subscription'}
                         <li>
-                            <b>{$subscription->extra['product$name']}</b> has been migrated to <b>{$subscription->extra['plan$name']}</b> plan, valid from
+                            <b>{$subscription->extra['product$name']}</b>, now migrated to <b>{$subscription->extra['plan$name']}</b> plan, valid from
                             <b>
                             {if $subscription->hasStartDate()}
                                 {$subscription->getStartDate()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
