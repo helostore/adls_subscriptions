@@ -14,6 +14,7 @@
 namespace HeloStore\ADLSS;
 
 
+use HeloStore\ADLS\LicenseRepository;
 use HeloStore\ADLSS\Base\Manager;
 use HeloStore\ADLSS\Plan\PlanRepository;
 use HeloStore\ADLSS\Subscription\SubscriptionManager;
@@ -72,11 +73,21 @@ class MigrationManager extends Manager
             return false;
         }
 
+        list($licensesBeforeMigration, ) = LicenseRepository::instance()->find(['orderId' => $order['order_id']]);
+
         $order = fn_get_order_info($order['order_id']);
         $this->updateOrderProducts($order);
         $order['prev_status'] = 'O';
 
         list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId, array('extended' => true));
+
+        list($licensesAfterMigration, ) = LicenseRepository::instance()->find(['orderId' => $order['order_id']]);
+        $ca = count($licensesBeforeMigration);
+        $cb = count($licensesAfterMigration);
+        if ($ca != $cb) {
+            fn_print_r("Warning: Number of licenses modified during migration of order $orderId: before: $ca, after: $cb");
+        }
+
         if (empty($subscriptions)) {
             fn_print_r('Warning: No subscriptions generated for order #' . $orderId);
             return false;
