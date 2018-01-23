@@ -1,5 +1,15 @@
 [
     {
+        "version": "0.0.20",
+        "releaseDate": "2018-01-23 08:54:49",
+        "releaseTimestamp": "1516740889",
+        "hash": "f86ef8b233150fed61a288636b41344a9b03c9b3",
+        "commits": [
+            "[2018-01-23] Bumped version to 0.0.20",
+            "[2018-01-23]\tUpdate migration such that access to Release is created even for free products"
+        ]
+    },
+    {
         "version": "0.0.19",
         "releaseDate": "2018-01-23 04:25:21",
         "releaseTimestamp": "1516724721",
@@ -26,16 +36,6 @@
         "commits": [
             "[2018-01-21] Bumped version to 0.0.17",
             "[2018-01-21]\tUpdate migration email text"
-        ]
-    },
-    {
-        "version": "0.0.16",
-        "releaseDate": "2017-12-20 02:16:06",
-        "releaseTimestamp": "1513779366",
-        "hash": "d63e2d3bf9c32036e5e97f8cc072ac0cbccecf42",
-        "commits": [
-            "[2017-12-30] Bumped version to 0.0.16",
-            "[2017-12-20]\tBumped version to 0.0.15"
         ]
     }
 ]
