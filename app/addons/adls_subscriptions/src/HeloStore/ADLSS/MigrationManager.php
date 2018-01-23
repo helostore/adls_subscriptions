@@ -161,8 +161,9 @@ class MigrationManager extends Manager
 
             $productId = $product['product_id'];
             $productDefaultOptions = fn_get_default_product_options($productId, true);
+
             if (empty($productDefaultOptions)) {
-                continue;
+//                continue;
             }
             if (!isset($product['extra'])) {
                 $cart['products'][$k]['extra'] = array();
