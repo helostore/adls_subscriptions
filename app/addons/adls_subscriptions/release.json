@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.0.18",
+        "releaseDate": "2018-01-21 07:09:54",
+        "releaseTimestamp": "1516561794",
+        "hash": "6332c87f19a818e4df0023b45436fb2d7a0bf529",
+        "commits": [
+            "[2018-01-23] Bumped version to 0.0.18"
+        ]
+    },
+    {
         "version": "0.0.17",
         "releaseDate": "2018-01-21 07:09:50",
         "releaseTimestamp": "1516561790",
@@ -29,16 +38,6 @@
             "[2017-12-16]\tMinor fix with license ID being null",
             "[2017-12-14]\tMerge branch 'master' of disruptive.academy:helostore\/adls_subscriptions",
             "[2017-12-14]\tBumped version to 0.0.13"
-        ]
-    },
-    {
-        "version": "0.0.13",
-        "releaseDate": "2017-11-19 02:41:12",
-        "releaseTimestamp": "1511102472",
-        "hash": "d2fddde59389b9e3bb6f2a7f2e96a37c37ef9d98",
-        "commits": [
-            "[2017-12-14] Bumped version to 0.0.13",
-            "[2017-11-19]\tBumped version to 0.0.12"
         ]
     }
 ]
