@@ -444,10 +444,13 @@ class SubscriptionManager extends Manager
         $companyId = $subscription->getCompanyId();
         $template = 'addons/adls_subscriptions/alert.tpl';
 
-	    $viewData = array(
-		    'subscription' => $subscription,
-		    'alert'        => $alert,
-	    );
+        $subscriptionRenewalLink = fn_url('adls_subscriptions.add?subscription_id=' . $subscription->getId(), 'C', 'https', CART_LANGUAGE);
+        $viewData = array(
+            'subscription' => $subscription,
+            'subscriptionRenewalLink'        => $subscriptionRenewalLink,
+            'alert'        => $alert,
+        );
+
 	    if ( ! empty( $data ) ) {
 		    $viewData = array_merge( $viewData, $data );
 	    }

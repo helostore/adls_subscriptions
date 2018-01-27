@@ -42,13 +42,19 @@ Sizes: [
     <style type="text/css">
         {literal}
         /* RESET STYLES */
-        html { background-color:#FEFEFE; margin:0; padding:0; }
-        body, #bodyTable, #bodyCell, #bodyCell{height:100% !important; margin:0; padding:0; width:100% !important;font-family:Helvetica, Arial, "Lucida Grande", sans-serif;}
+        /*@import url(https://fonts.googleapis.com/css?family=Open+Sans);*/
+        @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700');
+
+        html { background-color:#FEFEFE; margin:0; padding:0; font-family:Montserrat, Helvetica, sans-serif; font-size: 12px;  }
+        * {font-family:Montserrat, Helvetica, sans-serif;  }
+        strong {font-weight: 600;}
+        p {font-weight: 300;}
+        body, #bodyTable, #bodyCell, #bodyCell{height:100% !important; margin:0; padding:0; width:100% !important;font-family:Montserrat, Helvetica, sans-serif;}
         table{border-collapse:collapse;}
         table[id=bodyTable] {width:100%!important;margin:auto;max-width:500px!important;color:#7A7A7A;font-weight:normal;}
         img, a img{border:0; outline:none; text-decoration:none;height:auto; line-height:100%;}
         a {text-decoration:none !important;border-bottom: 1px solid;}
-        h1, h2, h3, h4, h5, h6{color:#000000; font-weight:normal; font-family:Helvetica; font-size:20px; line-height:125%; text-align:Left; letter-spacing:normal;margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0;}
+        h1, h2, h3, h4, h5, h6{color:#000000; font-weight:normal; font-family:Montserrat, Helvetica, sans-serif; font-size:20px; line-height:125%; text-align:Left; letter-spacing:normal;margin-top:0;margin-right:0;margin-bottom:10px;margin-left:0;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0;}
             /* CLIENT-SPECIFIC STYLES */
         .ReadMsgBody{width:100%;} .ExternalClass{width:100%;} /* Force Hotmail/Outlook.com to display emails at full width. */
         .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div{line-height:100%;} /* Force Hotmail/Outlook.com to display line heights normally. */
@@ -59,10 +65,10 @@ Sizes: [
         .ExternalClass td[class="ecxflexibleContainerBox"] h3 {padding-top: 10px !important;} /* Force hotmail to push 2-grid sub headers down */
             /* /\/\/\/\/\/\/\/\/ TEMPLATE STYLES /\/\/\/\/\/\/\/\/ */
             /* ========== Page Styles ========== */
-        h1{display:block;font-size:26px;font-style:normal;font-weight:normal;line-height:100%;}
-        h2{display:block;font-size:20px;font-style:normal;font-weight:normal;line-height:120%;}
-        h3{display:block;font-size:17px;font-style:normal;font-weight:normal;line-height:110%;}
-        h4{display:block;font-size:18px;font-style:italic;font-weight:normal;line-height:100%;}
+        h1{display:block;font-size:26px;font-style:normal;font-weight:500;line-height:100%;}
+        h2{display:block;font-size:20px;font-style:normal;font-weight:500;line-height:120%;}
+        h3{display:block;font-size:17px;font-style:normal;font-weight:500;line-height:110%;}
+        h4{display:block;font-size:18px;font-style:italic;font-weight:500;line-height:100%;}
         .flexibleImage{height:auto;}
         .linkRemoveBorder{border-bottom:0 !important;}
         table[class=flexibleContainerCellDivider] {padding-bottom:0 !important;padding-top:0 !important;}
@@ -72,11 +78,11 @@ Sizes: [
         #emailFooter{background-color:#FEFEFE;}
         .nestedContainer{background-color:#F8F8F8; border:1px solid #CCCCCC;}
         .emailButton{background-color:#205478; border-collapse:separate;}
-        .buttonContent{color:#FFFFFF; font-family:Helvetica; font-size:18px; font-weight:bold; line-height:100%; padding:15px; text-align:center;}
+        .buttonContent{color:#FFFFFF; font-family:Montserrat, Helvetica; font-size:18px; font-weight:bold; line-height:100%; padding:15px; text-align:center;}
         .buttonContent a{color:#FFFFFF; display:block; text-decoration:none!important; border:0!important;}
         .emailCalendar{background-color:#FFFFFF; border:1px solid #CCCCCC;}
-        .emailCalendarMonth{background-color:#205478; color:#FFFFFF; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; padding-top:10px; padding-bottom:10px; text-align:center;}
-        .emailCalendarDay{color:#205478; font-family:Helvetica, Arial, sans-serif; font-size:60px; font-weight:bold; line-height:100%; padding-top:20px; padding-bottom:20px; text-align:center;}
+        .emailCalendarMonth{background-color:#205478; color:#FFFFFF; font-family:Montserrat, Helvetica, sans-serif; font-size:16px; font-weight:bold; padding-top:10px; padding-bottom:10px; text-align:center;}
+        .emailCalendarDay{color:#205478; font-family:Montserrat, Helvetica, sans-serif; font-size:60px; font-weight:bold; line-height:100%; padding-top:20px; padding-bottom:20px; text-align:center;}
         .imageContentText {margin-top: 10px;line-height:0;}
         .imageContentText a {line-height:0;}
         #invisibleIntroduction {display:none !important;} /* Removing the introduction text from the view */
@@ -226,7 +232,7 @@ Sizes: [
                                                                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:100%;">
                                                                     <tr>
                                                                         <td align="left" class="textContent">
-                                                                            <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
+                                                                            <div style="font-family:Montserrat, Helvetica, sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
                                                                                 {$alert.excerpt}
                                                                             </div>
                                                                         </td>
@@ -238,7 +244,7 @@ Sizes: [
                                                                     <tr>
                                                                         <td align="left" class="textContent">
                                                                             <!-- CONTENT // -->
-                                                                            <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
+                                                                            <div style="font-family:Montserrat, Helvetica, sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
                                                                                 {*If you can't see this message, <a href="#" target="_blank" style="text-decoration:none;border-bottom:1px solid #828282;color:#828282;"><span style="color:#828282;">view&nbsp;it&nbsp;in&nbsp;your&nbsp;browser</span></a>.*}
                                                                             </div>
                                                                         </td>
@@ -310,12 +316,12 @@ Sizes: [
                                                                 <img src="{$logos.mail.image.image_path}" width="{$logos.mail.image.image_x}" height="{$logos.mail.image.image_y}" border="0" alt="{$logos.mail.image.alt}" />
                                                             </td>
                                                             <td align="center" valign="top" class="textContent">
-                                                                <h1 style="color:#333333;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">{$alert.title|default:$alert.subject}</h1>
-                                                                <h2 style="text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">{$alert.subtitle|default:''}</h2>
+                                                                <h1 style="color:#333333;line-height:100%;font-family:Montserrat, Helvetica, sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">{$alert.title|default:$alert.subject}</h1>
+                                                                <h2 style="text-align:center;font-weight:normal;font-family:Montserrat, Helvetica, sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">{$alert.subtitle|default:''}</h2>
                                                                 {if !empty($order)}
                                                                     <div style="color: #666;"><small>From {$order.timestamp|date_format:"`$settings.Appearance.date_format`"}</small></div>
                                                                 {/if}
-                                                                {*<div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.</div>*}
+                                                                {*<div style="text-align:center;font-family:Montserrat, Helvetica, sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.</div>*}
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -396,7 +402,7 @@ Sizes: [
                                                         <tr>
                                                             <td valign="top" bgcolor="#FEFEFE">
 
-                                                                <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
+                                                                <div style="font-family:Montserrat, Helvetica, sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
                                                                     <div>&copy; {if $smarty.const.TIME|date_format:"%Y" != $settings.Company.company_start_year}{$settings.Company.company_start_year}-{/if}{$smarty.const.TIME|date_format:"%Y"} <a href="{$settings.Company.company_website}" target="_blank" style="text-decoration:none;color:#828282;"><span style="color:#828282;">{$settings.Company.company_name}</span></a>. All&nbsp;rights&nbsp;reserved.</div>
                                                                     {*<div>If you do not want to recieve emails from us, you can <a href="#" target="_blank" style="text-decoration:none;color:#828282;"><span style="color:#828282;">unsubscribe</span></a>.</div>*}
                                                                 </div>
