@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.0.22",
+        "releaseDate": "2018-07-28 01:11:33",
+        "releaseTimestamp": "1532783493",
+        "hash": "63e6e5836084ed03f9765353010283d4f12309a2",
+        "commits": [
+            "[2018-01-28] Bumped version to 0.0.22"
+        ]
+    },
+    {
         "version": "0.0.21",
         "releaseDate": "2018-07-28 01:11:28",
         "releaseTimestamp": "1532783488",
@@ -28,15 +37,6 @@
         "commits": [
             "[2018-01-23] Bumped version to 0.0.19",
             "[2018-01-23]\tUpdate migration script"
-        ]
-    },
-    {
-        "version": "0.0.18",
-        "releaseDate": "2018-01-21 07:09:54",
-        "releaseTimestamp": "1516561794",
-        "hash": "6332c87f19a818e4df0023b45436fb2d7a0bf529",
-        "commits": [
-            "[2018-01-23] Bumped version to 0.0.18"
         ]
     }
 ]
