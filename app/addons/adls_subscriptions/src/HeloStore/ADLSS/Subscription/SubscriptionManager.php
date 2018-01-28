@@ -186,6 +186,8 @@ class SubscriptionManager extends Manager
             if (empty($product['product_options'])) {
                 continue;
             }
+            $productPrice = $product['base_price'];
+
 
             foreach ($product['product_options'] as $option) {
                 $productOption = fn_get_product_option_data($option['option_id'], $option['product_id']);
@@ -218,7 +220,8 @@ class SubscriptionManager extends Manager
 	            } else {
 		            $currentVariant = $defaultVariant;
 	            }
-	            $currentPaidAmount = Utils::instance()->getVariantModifierValue($currentVariant);
+	            $currentPaidAmount = Utils::instance()->getVariantModifierValue($currentVariant, $productPrice);
+                $currentPaidAmount = fn_parse_price($currentPaidAmount);
 
 	            $defaultCycleVariant = $currentVariant;
 	            if ( empty( $currentPaidAmount ) ) {
@@ -236,8 +239,8 @@ class SubscriptionManager extends Manager
 		            // Customer selected a paid plan
 	            }
 
-	            $defaultCycleAmount = Utils::instance()->getVariantModifierValue($defaultCycleVariant);
-
+	            $defaultCycleAmount = Utils::instance()->getVariantModifierValue($defaultCycleVariant, $productPrice);
+                $defaultCycleAmount = fn_parse_price($defaultCycleAmount);
 	            // @TODO add a field for days in option-variant, and replace `position` functionality
 	            $initialPaidPeriod = $currentVariant['position']; // months
 
