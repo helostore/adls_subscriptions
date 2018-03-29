@@ -57,7 +57,12 @@ class SubscriptionManager extends Manager
 	{
         $orderInfo['status_from'] = $statusFrom;
 
-        return $this->processOrder($orderInfo, $statusTo);
+        $subscriptionId = $this->processOrder($orderInfo, $statusTo);
+		if (!empty($subscriptionId) && !empty($_SESSION) && !empty($_SESSION['auth']) && !empty($_SESSION['auth']['user_id'])) {
+			fn_set_notification('N', __('notice'), __('adlss.subscription.create.success'));
+		}
+
+		return $subscriptionId;
 	}
 
     public function onGetOrderInfo(&$order, $additionalData)
@@ -157,7 +162,7 @@ class SubscriptionManager extends Manager
     /**
      * @param $orderInfo
      * @param null $status
-     * @return bool
+     * @return integer
      * @throws Exception
      */
     public function processOrder($orderInfo, $status = null)
@@ -166,6 +171,20 @@ class SubscriptionManager extends Manager
             $status = $orderInfo['status'];
         }
         $paidStatuses = array('P');
+
+        $settings = Utils::instance()->getSettings();
+	    if ( ! empty( $settings['order_status_fulfill'] ) ) {
+		    $paidStatuses = array();
+		    foreach ( $settings['order_status_fulfill'] as $statusCode => $value ) {
+			    if ( $value == 'Y' && !in_array($statusCode, $paidStatuses)) {
+				    $paidStatuses[] = $statusCode;
+			    }
+		    }
+		    if ( empty( $paidStatuses ) ) {
+			    $paidStatuses = array('P');
+		    }
+	    }
+
         $isPaidStatus = in_array($status, $paidStatuses);
 
         /** @var SubscriptionRepository $subscriptionRepository */
@@ -179,6 +198,7 @@ class SubscriptionManager extends Manager
         $userId = $orderInfo['user_id'];
         $companyId = $orderInfo['company_id'];
 
+	    $subscriptionId = null;
         foreach ($orderInfo['products'] as $product) {
             $productId = $product['product_id'];
             $itemId = $product['item_id'];
@@ -325,7 +345,7 @@ class SubscriptionManager extends Manager
             }
         }
 
-        return true;
+        return $subscriptionId;
     }
 
 

@@ -91,7 +91,7 @@ function fn_adls_subscriptions_adls_api_license_pre_activation($licenseId, $orde
  * @param $join
  * @param $extra_variant_fields
  * @param $lang_code
- * 
+ *
  * @return bool
  */
 function fn_adls_subscriptions_get_product_option_data_pre($option_id, $product_id, &$fields, $condition, &$join, $extra_variant_fields, $lang_code)
@@ -173,14 +173,6 @@ function fn_adls_subscriptions_get_order_info(&$order, $additional_data)
 	SubscriptionManager::instance()->onGetOrderInfo($order, $additional_data);
 }
 
-
-function fn_settings_variants_addons_adls_subscriptions_order_status_on_suspend()
-{
-    $statuses = fn_get_simple_statuses(STATUSES_ORDER);
-
-    return $statuses;
-}
-
 /**
  * Helpers
  */
@@ -188,7 +180,6 @@ function fn_settings_variants_addons_adls_subscriptions_order_status_on_suspend(
 function fn_adlss_is_subscribable($object)
 {
     return SubscribableManager::instance()->isSubscribable($object);
-
 }
 
 function fn_adlss_add_to_cart_renewal_subscription( Subscription $subscription, $item, $cart, $auth ) {

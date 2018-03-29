@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $option = $_POST['option_data'];
                 $optionId = intval($_POST['option_id']);
                 $planId = intval($option['planId']);
-                $subscribableId = intval($option['subscribableId']);
+                $subscribableId = !empty($option['subscribableId']) ? intval($option['subscribableId']) : 0;
                 $subscribableManager = SubscribableManager::instance();
 
 

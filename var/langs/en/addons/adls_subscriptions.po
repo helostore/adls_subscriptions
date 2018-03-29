@@ -16,6 +16,10 @@ msgctxt "SettingsOptions::adls_subscriptions::email"
 msgid "HELOstore email"
 msgstr "HELOstore email"
 
+msgctxt "SettingsOptions::adls_subscriptions::order_status_fulfill"
+msgid "Order status that creates the subscription"
+msgstr "Order status that creates the subscription"
+
 msgctxt "SettingsOptions::adls_subscriptions::password"
 msgid "HELOstore password"
 msgstr "HELOstore password"
@@ -103,6 +107,10 @@ msgstr "Status"
 msgctxt "Languages::adlss.action"
 msgid "Action"
 msgstr "Action"
+
+msgctxt "Languages::adlss.subscription.create.success"
+msgid ""
+msgstr "Subscription was successfully created"
 
 msgctxt "Languages::adlss.subscribable.create.success"
 msgid ""

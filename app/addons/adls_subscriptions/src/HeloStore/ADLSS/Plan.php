@@ -15,7 +15,7 @@
 namespace HeloStore\ADLSS;
 
 
-use HeloStore\ADLS\Entity;
+use HeloStore\ADLSS\Base\Entity;
 
 class Plan extends Entity
 {
