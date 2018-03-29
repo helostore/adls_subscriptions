@@ -9,7 +9,7 @@
         }
     ],
     "support": {
-        "email": "support@helostore.com",
+        "email": "support@helostore.com"
     },
     "autoload": {
         "psr-0": { "HeloStore": "src/" }

@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.1.0",
+        "releaseDate": "2018-03-29 01:57:48",
+        "releaseTimestamp": "1522331868",
+        "hash": "768b621f1b11e60264002d85605fdc0df0c67e78",
+        "commits": [
+            "[2018-03-29] Bumped version to 0.1.0"
+        ]
+    },
+    {
         "version": "0.0.24",
         "releaseDate": "2018-01-28 10:26:01",
         "releaseTimestamp": "1517135161",
@@ -25,17 +34,6 @@
         "hash": "63e6e5836084ed03f9765353010283d4f12309a2",
         "commits": [
             "[2018-01-28] Bumped version to 0.0.22"
-        ]
-    },
-    {
-        "version": "0.0.21",
-        "releaseDate": "2018-07-28 01:11:28",
-        "releaseTimestamp": "1532783488",
-        "hash": "43f154283bc41961d6959ed720d4471782326a95",
-        "commits": [
-            "[2018-07-28] Bumped version to 0.0.21",
-            "[2018-07-28]\tMinor fix",
-            "[2018-01-27]\tSubscription renewal fix in email"
         ]
     }
 ]
