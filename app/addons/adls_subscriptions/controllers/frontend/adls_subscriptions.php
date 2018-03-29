@@ -96,7 +96,9 @@ if ( $mode === 'manage' ) {
 	$userId = $auth['user_id'];
 	list($subscriptions, $search) = $subscriptionRepository->find(array(
 		'userId' => $userId,
-		'extended' => true
+		'extended' => true,
+		'sort_by' => 'product',
+		'sort_order' => 'asc'
 	));
 	Tygh::$app['view']->assign('subscriptions', $subscriptions);
 	Tygh::$app['view']->assign('search', $search);

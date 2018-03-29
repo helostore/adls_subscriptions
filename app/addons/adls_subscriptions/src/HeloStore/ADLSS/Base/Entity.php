@@ -8,7 +8,6 @@
 
 namespace HeloStore\ADLSS\Base;
 
-
 use JsonSerializable;
 
 abstract class Entity implements JsonSerializable
@@ -25,6 +24,8 @@ abstract class Entity implements JsonSerializable
      * Entity constructor.
      *
      * @param array $data
+     *
+     * @throws \Exception
      */
     public function __construct($data = array())
     {
@@ -33,35 +34,35 @@ abstract class Entity implements JsonSerializable
         }
     }
 
-	/**
-	 * @param $key
-	 *
-	 * @return mixed|null
-	 */
+    /**
+     * @param $key
+     *
+     * @return mixed|null
+     */
     public function getExtra( $key ) {
-	    if ( isset( $this->extra[ $key ] ) ) {
-		    return $this->extra[ $key ];
-	    }
+        if ( isset( $this->extra[ $key ] ) ) {
+            return $this->extra[ $key ];
+        }
 
-	    return null;
+        return null;
     }
 
-	/**
-	 * @param $key
-	 * @param $value
-	 *
-	 * @return mixed|null
-	 */
+    /**
+     * @param $key
+     * @param $value
+     *
+     * @return mixed|null
+     */
     public function setExtra( $key, $value ) {
-	    if (! isset( $this->extra[ $key ] ) ) {
-		    return false;
-	    }
-	    $this->extra[ $key ] = $value;
+        if (! isset( $this->extra[ $key ] ) ) {
+            return false;
+        }
+        $this->extra[ $key ] = $value;
 
-	    return null;
+        return null;
     }
 
-	/**
+    /**
      * @return array
      */
     public function toArray()
@@ -77,6 +78,7 @@ abstract class Entity implements JsonSerializable
                 'endDate',
                 'updatedAt',
                 'createdAt',
+                'releaseDate',
                 'date'))) {
                 $value = ($value instanceof \DateTime ? $value->format('Y-m-d H:i:s') : $value);
             }
@@ -117,6 +119,7 @@ abstract class Entity implements JsonSerializable
                 'startDate',
                 'endDate',
                 'updatedAt',
+                'releaseDate',
                 'createdAt',
                 'date'))) {
 
