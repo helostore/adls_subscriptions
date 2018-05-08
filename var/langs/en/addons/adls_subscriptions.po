@@ -52,7 +52,15 @@ msgctxt "Languages::adlss.startDate"
 msgid "Start"
 msgstr "Start"
 
+msgctxt "Languages::adlss.start_date"
+msgid "Start"
+msgstr "Start"
+
 msgctxt "Languages::adlss.endDate"
+msgid "End"
+msgstr "End"
+
+msgctxt "Languages::adlss.end_date"
 msgid "End"
 msgstr "End"
 
@@ -190,3 +198,15 @@ msgstr "Plan delete"
 msgctxt "Languages::adlss.plan.delete.error"
 msgid ""
 msgstr "Failed deleting plan"
+
+
+
+
+msgctxt "Languages::adlss.subscription.new"
+msgid "New subscription"
+msgstr "New subscription"
+
+msgctxt "Languages::adlss.subscription.edit"
+msgid "Edit subscription"
+msgstr "Edit subscription"
+

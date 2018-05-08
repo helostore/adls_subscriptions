@@ -18,11 +18,20 @@ Setup
 
 Crons
 -----
+```
 # Check subscription expiration hourly
 30 * * * * php hsw.php --dispatch=adls_cycle.check.expiration
 
 # Check subscription alerts once a day
 0 15 * * * php hsw.php --dispatch=adls_cycle.check.alerts
+```
+
+Debugging
+-------
+```
+// Skip checking if production domains are valid (for testing purposes)
+define('ADLS_SKIP_STRICT_DOMAIN_VALIDATION', true);
+```
 
 License
 -------

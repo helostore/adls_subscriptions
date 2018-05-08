@@ -22,6 +22,7 @@ class CycleManager extends Manager
 {
     /**
      * @param Plan $plan
+     * @deprecated This has been move in tests directory, where it belongs.
      */
     public function timeTravel(Plan $plan)
     {

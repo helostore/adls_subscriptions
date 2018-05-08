@@ -591,11 +591,12 @@ class Subscription extends Entity
      */
     public function getRemainingTime()
     {
-        if ($this->hasEndDate()) {
+        $now = Utils::instance()->getCurrentDate();
+        if ($this->hasEndDate() && $this->endDate > $now) {
             return Utils::instance()->getDuration($this->endDate);
         }
 
-        return '&mdash;';
+        return 0;
     }
 
     /**

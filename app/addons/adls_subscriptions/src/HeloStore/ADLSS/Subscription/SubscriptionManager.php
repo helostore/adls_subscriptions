@@ -71,7 +71,6 @@ class SubscriptionManager extends Manager
         $subscribableRepository = SubscribableRepository::instance();
         $userId = $order['user_id'];
         $orderId = $order['order_id'];
-
         foreach ($order['products'] as &$product) {
             $productId = $product['product_id'];
             $itemId = $product['item_id'];
@@ -106,7 +105,7 @@ class SubscriptionManager extends Manager
                 // @TODO the question is: to assume or not to assume one subscription per product?
                 $product['subscription'] = $this->getRepository()->findOne(array(
                     'userId' => $userId,
-                    'planId' => $planId,
+//                    'planId' => $planId,
                     'orderId' => $orderId,
                     'itemId' => $itemId,
                     'productId' => $productId,
@@ -358,12 +357,32 @@ class SubscriptionManager extends Manager
      */
     public function begin(Subscription $subscription, $initialPaidPeriod = null)
     {
+
+        $utils = Utils::instance();
+        $subscription->setStartDate($utils->getCurrentDate());
+//        $subscription->setEndDate($utils->getCurrentDate());
+//        if (!empty($initialPaidPeriod)) {
+//            $paidCycles = $initialPaidPeriod / $plan->getCycle();
+//            $subscription->payCycle($paidCycles);
+//            $subscription->getEndDate()->modify('+ ' . $initialPaidPeriod . ' months');
+//        } else {
+//            $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
+//            $subscription->payCycle();
+//        }
+        $this->setEndDate($subscription, $initialPaidPeriod);
+        $subscription->activate();
+
+        return $this->repository->update($subscription);
+    }
+
+    public function setEndDate(Subscription $subscription, $initialPaidPeriod = null)
+    {
         $planId = $subscription->getPlanId();
         $planRepository = PlanRepository::instance();
         $plan = $planRepository->findOneById($planId);
-        $utils = Utils::instance();
-        $subscription->setStartDate($utils->getCurrentDate());
-        $subscription->setEndDate($utils->getCurrentDate());
+
+        $endDate = clone $subscription->getStartDate();
+        $subscription->setEndDate($endDate);
         if (!empty($initialPaidPeriod)) {
             $paidCycles = $initialPaidPeriod / $plan->getCycle();
             $subscription->payCycle($paidCycles);
@@ -372,9 +391,8 @@ class SubscriptionManager extends Manager
             $subscription->getEndDate()->modify('+ ' . $plan->getCycle() . ' months');
             $subscription->payCycle();
         }
-        $subscription->activate();
 
-        return $this->repository->update($subscription);
+        return true;
     }
 
     /**
@@ -545,4 +563,22 @@ class SubscriptionManager extends Manager
 		}
 		return $order['products'][ $itemId ];
 	}
+
+    public function changePlan(Subscription $subscription, Plan $newPlan, $initialPaidPeriod = null)
+    {
+        $subscription->setPlanId($newPlan->getId());
+        if ( ! $this->repository->update($subscription)) {
+            return false;
+        }
+
+        if ( ! $this->setEndDate($subscription, $initialPaidPeriod)) {
+            return false;
+        }
+
+        if ( ! $this->repository->update($subscription)) {
+            return false;
+        }
+
+        return true;
+    }
 }
