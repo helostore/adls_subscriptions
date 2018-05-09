@@ -13,6 +13,7 @@
  */
 
 use HeloStore\ADLSS\Plan\PlanRepository;
+use HeloStore\ADLSS\Subscription;
 use HeloStore\ADLSS\Subscription\SubscriptionManager;
 use HeloStore\ADLSS\Subscription\SubscriptionRepository;
 use Tygh\Registry;
@@ -34,6 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             return array(CONTROLLER_STATUS_NO_PAGE);
         }
 
+        $initialPaidPeriod = empty($requestData['initialPaidPeriod']) ? null : intval($requestData['initialPaidPeriod']);
+
         if ($subscription->getPlanId() != $requestData['planId']) {
 
             $newPlan = $planRepository->findOneById($requestData['planId']);
@@ -43,14 +46,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 return array(CONTROLLER_STATUS_OK, $_SERVER['HTTP_REFERER']);
             }
 
-            $initialPaidPeriod = empty($requestData['initialPaidPeriod']) ? null : intval($requestData['initialPaidPeriod']);
 
             if ( $subscriptionManager->changePlan($subscription, $newPlan, $initialPaidPeriod)) {
-                fnx('OK!');
+                fn_set_notification('N', __('notice'), 'Plan changed.');
             } else {
-                fnx('Fail!');
+                fn_set_notification('E', __('error'), 'Failed changing plan.');
+            }
+        } else if (!empty($initialPaidPeriod)) {
+            if ( $subscriptionManager->updateEndDate($subscription, $initialPaidPeriod)) {
+                fn_set_notification('N', __('notice'), 'End date changed.');
+            } else {
+                fn_set_notification('E', __('error'), 'Failed updating end date.');
             }
         }
+
+        if ($subscription->getStatus() != $requestData['status']) {
+            switch ($requestData['status']) {
+                case Subscription::STATUS_ACTIVE: $subscription->activate(); break;
+                case Subscription::STATUS_DISABLED: $subscription->disable(); break;
+                case Subscription::STATUS_INACTIVE:
+                default:
+                    $subscription->inactivate(); break;
+            }
+            if ($subscriptionRepository->update($subscription)) {
+                fn_set_notification('N', __('notice'), 'Status changed.');
+            } else {
+                fn_set_notification('E', __('error'), 'Failed changing status.');
+            }
+        }
+
 
 		return array(CONTROLLER_STATUS_OK, $_SERVER['HTTP_REFERER']);
 	}

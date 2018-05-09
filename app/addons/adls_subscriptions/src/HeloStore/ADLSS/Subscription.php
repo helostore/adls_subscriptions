@@ -21,8 +21,18 @@ use HeloStore\ADLSS\Base\Entity;
 
 class Subscription extends Entity
 {
+    /**
+     * Subscription is paid.
+     */
 	const STATUS_ACTIVE = 'A';
+    /**
+     * Subscription is disabled for whatever reason and is unusable/un-renewable.
+     */
 	const STATUS_DISABLED = 'D';
+
+    /**
+     * Subscription is expired and unusable, but renewable.
+     */
 	const STATUS_INACTIVE = 'I';
 
     /**

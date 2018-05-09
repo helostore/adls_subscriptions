@@ -316,8 +316,8 @@ Sizes: [
                                                                 <img src="{$logos.mail.image.image_path}" width="{$logos.mail.image.image_x}" height="{$logos.mail.image.image_y}" border="0" alt="{$logos.mail.image.alt}" />
                                                             </td>
                                                             <td align="center" valign="top" class="textContent">
-                                                                <h1 style="color:#333333;line-height:100%;font-family:Montserrat, Helvetica, sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">{$alert.title|default:$alert.subject}</h1>
-                                                                <h2 style="text-align:center;font-weight:normal;font-family:Montserrat, Helvetica, sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">{$alert.subtitle|default:''}</h2>
+                                                                <h1 style="color:#333333;line-height:100%;font-family:Montserrat, Helvetica, sans-serif;font-size:28px;font-weight:normal;margin-bottom:5px;text-align:center;width:280px;height:2em;overflow: hidden;text-overflow: ellipsis;">{$alert.title|default:$alert.subject}</h1>
+                                                                <h2 style="text-align:center;font-weight:normal;font-family:Montserrat, Helvetica, sans-serif;font-size:22px;margin-bottom:10px;color:#6d6e6e;line-height:135%;">{$alert.subtitle|default:''}</h2>
                                                                 {if !empty($order)}
                                                                     <div style="color: #666;"><small>From {$order.timestamp|date_format:"`$settings.Appearance.date_format`"}</small></div>
                                                                 {/if}

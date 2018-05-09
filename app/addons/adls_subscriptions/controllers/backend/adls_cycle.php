@@ -18,12 +18,18 @@ use HeloStore\ADLSS\Subscription\SubscriptionRepository;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
+if (php_sapi_name() == "cli") {
+    error_reporting(E_ALL ^ ( E_NOTICE | E_DEPRECATED));
+}
+
 
 if ($mode == 'preview_alert') {
-	$subscription = SubscriptionRepository::instance()->findOneById(4);
+    $id = !empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 4;
+	$subscription = SubscriptionRepository::instance()->findOneById($id);
 	CycleManager::instance()->sendAlertExpired($subscription);
 	exit;
 }
+
 if ($mode == 'check') {
     error_reporting(error_reporting() & ~E_DEPRECATED);
 

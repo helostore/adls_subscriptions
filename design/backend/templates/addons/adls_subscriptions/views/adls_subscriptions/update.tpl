@@ -10,6 +10,7 @@
     {assign var="allow_save" value=true}
 {/if}
 {$show_save_btn = $allow_save scope = root}
+{$license_statuses = fn_adls_get_license_statuses()}
 {capture name="mainbox"}
 
     {capture name="tabsbox"}
@@ -63,7 +64,12 @@
                             <div class="control-group">
                                 <label for="" class="control-label cm-required">{__("status")}:</label>
                                 <div class="controls">
-                                    {$subscription->getStatusLabel()}
+                                    {*{$subscription->getStatusLabel()}*}
+                                    <select name="subscription[status]">
+                                        {foreach from=$license_statuses key=key item=status}
+                                            <option value="{$key}" {if $key == $subscription->getStatus()}selected="selected"{/if}>{$status}</option>
+                                        {/foreach}
+                                    </select>
                                 </div>
                             </div>
 
@@ -101,7 +107,7 @@
                                     {else}
                                         &infin;
                                     {/if}
-                                    <small>(remaining: {$subscription->getRemainingTime()} nofilter)</small>
+                                    <small>(remaining: {$subscription->getRemainingTime() nofilter})</small>
                                 </div>
                             </div>
 
@@ -116,14 +122,33 @@
                                 </div>
                             </div>
 
-
-
                             <div class="control-group">
-                                <label for="elm_subscription_cycle" class="control-label cm-required">{__("adlss.subscription.cycle")}:</label>
+                                <label for="" class="control-label cm-required">{__("adlss.updatedAt")}:</label>
                                 <div class="controls">
-                                    {*<input type="text" name="subscription[cycle]" id="elm_subscription_cycle" size="55" value="{$subscription->getCycle()}" class="input-large" />*}
+                                    {$subscription->getUpdatedAt()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
                                 </div>
                             </div>
+
+                            <div class="control-group">
+                                <label for="" class="control-label cm-required">{__("adlss.createdAt")}:</label>
+                                <div class="controls">
+                                    {$subscription->getCreatedAt()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="" class="control-label cm-required">{__("adlss.paidCycles")}:</label>
+                                <div class="controls">
+                                    {$subscription->getPaidCycles()}
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label for="" class="control-label cm-required">{__("adlss.elapsedCycles")}:</label>
+                                <div class="controls">
+                                    {$subscription->getElapsedCycles()}
+                                </div>
+                            </div>
+
 
                             {*{include file="common/select_status.tpl" input_name="subscription[status]" id="elm_subscription_status" obj=$subscription hidden=true}*}
 

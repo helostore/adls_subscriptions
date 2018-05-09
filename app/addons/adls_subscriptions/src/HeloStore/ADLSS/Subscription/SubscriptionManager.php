@@ -571,6 +571,11 @@ class SubscriptionManager extends Manager
             return false;
         }
 
+        return $this->updateEndDate($subscription, $initialPaidPeriod);
+    }
+
+    public function updateEndDate(Subscription $subscription, $initialPaidPeriod = null)
+    {
         if ( ! $this->setEndDate($subscription, $initialPaidPeriod)) {
             return false;
         }
@@ -581,4 +586,5 @@ class SubscriptionManager extends Manager
 
         return true;
     }
+
 }
