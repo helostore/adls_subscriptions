@@ -19,7 +19,9 @@
 <table class="ty-table ty-subscriptions-search">
     <thead>
     <tr>
-        {*{tableRowHeader key="id" label="id" sort_sign=$sort_sign search=$search}*}
+{*        {if defined('WS_DEBUG')}
+            {tableRowHeader key="id" label="id" sort_sign=$sort_sign search=$search}
+        {/if}*}
         {tableRowHeader key="productId" label="product" sort_sign=$sort_sign search=$search}
         {tableRowHeader key="date" label="adlss.availability" sort_sign=$sort_sign search=$search}
         {tableRowHeader key="plan" label="adlss.plan" sort_sign=$sort_sign search=$search}
@@ -33,7 +35,9 @@
     </thead>
     {foreach from=$subscriptions item="subscription"}
         <tr>
-            {*<td class="ty-subscriptions-search__item"><strong>#{$subscription->getId()}</strong></td>*}
+{*            {if defined('WS_DEBUG')}
+                <td class="ty-subscriptions-search__item"><strong>#{$subscription->getId()}</strong></td>
+            {/if}*}
             <td class="ty-subscriptions-search__item"><strong>{$subscription->getExtra('product$name')}</strong></td>
 
             <td class="ty-subscriptions-search__item">
@@ -41,7 +45,7 @@
                 {include file="addons/adls_subscriptions/views/adls_subscriptions/components/buttons.tpl" subscription=$subscription}
             </td>
             <td class="ty-subscriptions-search__item">
-                {include file="common/price.tpl" value=$subscription->getAmount()} / {$subscription->getExtra('plan$cycle')} months
+                {include file="common/price.tpl" value=$subscription->getAmount()} / {$subscription->getExtra('plan$cycle')} month(s)
             </td>
 
             {hook name="subscriptions:manage_data"}{/hook}

@@ -1,3 +1,4 @@
+<span class="adlss-availability">
 {if $subscription->hasStartDate()}
     {$subscription->getStartDate()->getTimestamp()|date_format:"`$settings.Appearance.date_format`"}
 {else}
@@ -9,3 +10,7 @@
 {else}
     &infin;
 {/if}
+{if $subscription->isActive()}
+    <br /><small>remaining: {$subscription->getRemainingTime() nofilter}</small>
+{/if}
+</span>
