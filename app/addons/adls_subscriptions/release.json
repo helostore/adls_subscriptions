@@ -1,5 +1,14 @@
 [
     {
+        "version": "0.1.5",
+        "releaseDate": "2018-05-09 09:03:15",
+        "releaseTimestamp": "1525856595",
+        "hash": "7c7cabf31dfd4a1cd8e66cd08ca78f65c9306b50",
+        "commits": [
+            "[2018-05-12] Bumped version to 0.1.5"
+        ]
+    },
+    {
         "version": "0.1.4",
         "releaseDate": "2018-05-09 09:01:03",
         "releaseTimestamp": "1525856463",
@@ -25,15 +34,6 @@
         "commits": [
             "[2018-05-08] Bumped version to 0.1.2",
             "[2018-05-08]\tAdd some backend views; allow changing subscription plan in backend"
-        ]
-    },
-    {
-        "version": "0.1.1",
-        "releaseDate": "2018-03-29 02:04:37",
-        "releaseTimestamp": "1522332277",
-        "hash": "ceeb8bd2d2861789ca91d8d5e405ea5ac3db7d29",
-        "commits": [
-            "[2018-03-29] Bumped version to 0.1.1"
         ]
     }
 ]

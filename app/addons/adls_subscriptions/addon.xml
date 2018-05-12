@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <addon scheme="3.0">
     <id>adls_subscriptions</id>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <name>ADLS Subscriptions</name>
     <description>Adds subscriptions feature to CS-Cart</description>
     <priority>1010112</priority>
@@ -97,7 +97,7 @@
                     </item>
                     <item id="order_status_fulfill">
                         <type>multiple checkboxes</type>
-                        <default_value>#M#C=Y</default_value>
+                        <default_value>#M#P=Y</default_value>
                     </item>
                     <item id="order_status_on_suspend">
                         <type>selectbox</type>
