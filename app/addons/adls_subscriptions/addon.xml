@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <addon scheme="3.0">
     <id>adls_subscriptions</id>
-    <version>0.1.6</version>
+    <version>0.1.7</version>
     <name>ADLS Subscriptions</name>
     <description>Adds subscriptions feature to CS-Cart</description>
     <priority>1010112</priority>
@@ -80,7 +80,8 @@
         <min>5.4.0</min>
     </php_version>
 
-
+    <supplier>HELOstore</supplier>
+    <supplier_link>https://helostore.com/</supplier_link>
     <authors>
         <author>
             <name>HELOstore</name>

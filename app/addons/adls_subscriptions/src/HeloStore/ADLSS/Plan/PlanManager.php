@@ -16,6 +16,8 @@ namespace HeloStore\ADLSS\Plan;
 
 
 use HeloStore\ADLSS\Base\Manager;
+use HeloStore\ADLSS\Plan;
+use HeloStore\ADLSS\Subscribable\SubscribableRepository;
 
 class PlanManager extends Manager
 {
@@ -28,4 +30,23 @@ class PlanManager extends Manager
 	{
 		$this->setRepository(PlanRepository::instance());
 	}
+
+    /**
+     * @param Plan $id Plan ID
+     *
+     * @return bool|int
+     */
+    public function delete($id)
+    {
+        $plan = $this->repository->findOneById($id);
+
+        if (empty($plan)) {
+            return false;
+        }
+
+        $subscribableRepository = SubscribableRepository::instance();
+        $subscribableRepository->deleteByPlanId($plan->getId());
+
+        return $this->repository->delete($plan->getId());
+    }
 }

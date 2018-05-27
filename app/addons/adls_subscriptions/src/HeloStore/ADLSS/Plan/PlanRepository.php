@@ -15,6 +15,7 @@ namespace HeloStore\ADLSS\Plan;
 
 use HeloStore\ADLSS\Base\EntityRepository;
 use HeloStore\ADLSS\Plan;
+use HeloStore\ADLSS\Subscribable\SubscribableRepository;
 use HeloStore\ADLSS\Utils;
 
 class PlanRepository extends EntityRepository

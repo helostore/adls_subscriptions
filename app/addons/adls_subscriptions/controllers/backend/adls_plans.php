@@ -13,6 +13,7 @@
  */
 
 use HeloStore\ADLSS\Plan;
+use HeloStore\ADLSS\Plan\PlanManager;
 use HeloStore\ADLSS\Plan\PlanRepository;
 use Tygh\Registry;
 use Tygh\Tygh;
@@ -20,6 +21,7 @@ use Tygh\Tygh;
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
 $planRepository = PlanRepository::instance();
+$planManager = PlanManager::instance();
 
 if (!empty($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
@@ -72,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $suffix = '.manage';
 
         if (!empty($id)) {
-            if ($planRepository->delete($id)) {
+            if ($planManager->delete($id)) {
                 fn_set_notification('N', __('notice'), __('adlss.plan.delete.success'));
             } else {
                 fn_set_notification('E', __('error'), __('adlss.plan.delete.error'));

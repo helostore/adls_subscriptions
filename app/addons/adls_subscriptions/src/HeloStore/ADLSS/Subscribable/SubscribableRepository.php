@@ -90,6 +90,11 @@ class SubscribableRepository extends EntityRepository
 		return db_query('DELETE FROM ?p WHERE objectType = ?s AND objectId = ?d', $this->table, $objectType, $objectId);
 	}
 
+    public function deleteByPlanId($planId)
+    {
+        return db_query('DELETE FROM ?p WHERE planId = ?i', $this->table, $planId);
+    }
+
 	/**
 	 * @param array $params
 	 *
@@ -109,6 +114,10 @@ class SubscribableRepository extends EntityRepository
 				$condition[] = db_quote('objectId IN (?a)', $params['objectId']);
 			}
 		}
+        if (!empty($params['planId'])) {
+            $params['planId'] = is_array($params['planId']) ? $params['planId'] : array($params['planId']);
+            $condition[] = db_quote('planId IN (?a)', $params['planId']);
+        }
 
 		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
 		$query = db_quote('SELECT * FROM ?p ?p GROUP BY id LIMIT 0,1', $this->table, $condition);
