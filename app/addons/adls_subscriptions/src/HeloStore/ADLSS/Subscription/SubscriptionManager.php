@@ -214,6 +214,44 @@ class SubscriptionManager extends Manager
                     continue;
                 }
 
+                if ( ! empty( $product['subscription'] ) ) {
+                    /** @var Subscription $subscription */
+                    $subscription = $product['subscription'];
+                    $isRenewal = true;
+                } else {
+                    /** @var Subscription $subscription */
+                    $subscription = $subscriptionRepository->findOne(array(
+                        'userId' => $userId,
+//			            'planId' => $planId,
+                        'orderId' => $orderId,
+                        'itemId' => $itemId,
+                        'productId' => $productId,
+                    ));
+                    // user/order/item
+                    // @TODO insert a subscription_id into order_details items to overcome the variance issue with item_id
+                    // that way we can attach subscriptions to order items easily, even when the item_id varies
+                }
+
+                // If order payment failed or order decline, inactivate the subscription
+                if (!$isPaidStatus && !empty($subscription)) {
+                    // @TODO: maybe call suspend() instead
+                    if (!$subscription->isInactive()) {
+                        $subscription->inactivate();
+                        $subscriptionRepository->update($subscription);
+                        fn_set_hook('adls_subscriptions_post_fail', $subscription, $product, $orderInfo);
+
+//	                        // Update payment record
+//	                        $payment = $paymentRepository->findBySubscription( $subscription );
+//	                        if (empty($payment)) {
+//		                        throw new Exception( 'Unable to fetch payment for subscription ' . $subscription->getId() );
+//	                        }
+//	                        $payment->fail();
+//	                        $paymentRepository->update( $payment );
+                    }
+                    continue;
+                }
+
+
                 $objectId = $option['option_id'];
                 $objectType = Subscribable::OBJECT_TYPE_PRODUCT_OPTION;
 
@@ -224,7 +262,7 @@ class SubscriptionManager extends Manager
 
 	            $plan = $planRepository->findOneById($subscribableLink->getPlanId());
 	            if (!$plan instanceof Plan) {
-		            throw new Exception('Unable to fetch plan from subscribable link');
+		            throw new Exception('Unable to fetch plan from subscribable link #' . $subscribableLink->getId() . ' (order #' . $orderId . ')');
 	            }
 
                 $defaultVariant = reset($productOption['variants']);
@@ -267,21 +305,6 @@ class SubscriptionManager extends Manager
                 $planId = $plan->getId();
 
 	            $isRenewal = false;
-	            if ( ! empty( $product['subscription'] ) ) {
-		            /** @var Subscription $subscription */
-		            $subscription = $product['subscription'];
-		            $isRenewal = true;
-	            } else {
-		            /** @var Subscription $subscription */
-		            $subscription = $subscriptionRepository->findOne(array(
-			            'userId' => $userId,
-			            'planId' => $planId,
-			            'orderId' => $orderId,
-			            'itemId' => $itemId,
-			            'productId' => $productId,
-		            ));
-	            }
-
 
                 if ($isPaidStatus) {
                     // If order paid successfully
@@ -322,23 +345,7 @@ class SubscriptionManager extends Manager
 
 
                 } else {
-                    // If order payment failed, inactivate the subscription
-                    if (!empty($subscription)) {
-                        // @TODO: maybe call suspend() instead
-                        if (!$subscription->isInactive()) {
-                            $subscription->inactivate();
-                            $subscriptionRepository->update($subscription);
-                            fn_set_hook('adls_subscriptions_post_fail', $subscription, $product, $orderInfo);
 
-//	                        // Update payment record
-//	                        $payment = $paymentRepository->findBySubscription( $subscription );
-//	                        if (empty($payment)) {
-//		                        throw new Exception( 'Unable to fetch payment for subscription ' . $subscription->getId() );
-//	                        }
-//	                        $payment->fail();
-//	                        $paymentRepository->update( $payment );
-                        }
-                    }
                 }
 
             }

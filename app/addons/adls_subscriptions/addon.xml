@@ -12,6 +12,7 @@
 
     <queries>
         <item for="install">ALTER TABLE `?:products` ADD `adls_subscription_id` smallint(2);</item>
+        <item for="install">ALTER TABLE `?:order_details` ADD `subscription_id` mediumint(8);</item>
         <item for="uninstall">ALTER TABLE `?:products` DROP `adls_subscription_id`;</item>
 
         <item for="install">

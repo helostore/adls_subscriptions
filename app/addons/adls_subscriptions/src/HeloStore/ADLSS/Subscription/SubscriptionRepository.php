@@ -60,6 +60,11 @@ class SubscriptionRepository extends EntityRepository
 		$query = db_quote( 'INSERT INTO ' . $this->table . ' ?e', $data );
 		$subscriptionId = db_query($query);
 
+        if ( ! empty($subscriptionId)) {
+            $query = db_quote('UPDATE ?:order_details SET subscription_id = ?i WHERE order_id = ?i AND item_id = ?i', $subscriptionId, $orderId, $itemId);
+            db_query($query);
+        }
+
 		return $subscriptionId;
 	}
 
