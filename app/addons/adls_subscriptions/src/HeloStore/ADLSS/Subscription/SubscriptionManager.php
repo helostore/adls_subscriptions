@@ -111,7 +111,8 @@ class SubscriptionManager extends Manager
 	            // If there's no subscription yet, assume it's a new order whose subscription must be set up.
 	            // Mark it as such, so that the License can be setup regardless if the Subscription has been created first.
 	            if ( empty( $product['subscription'] ) ) {
-		            $order['adls_subscription_setup_pending'] = true;
+//		            $order['adls_subscription_setup_pending'] = $productId;
+                    $product['adls_subscription_setup_pending'] = true;
 	            }
             }
             unset($option);
