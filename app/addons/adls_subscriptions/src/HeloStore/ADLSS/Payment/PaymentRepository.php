@@ -122,12 +122,12 @@ class PaymentRepository extends EntityRepository
 		if (isset($params['one'])) {
 			$limit = 'LIMIT 0,1';
 		} else if (!empty($params['items_per_page'])) {
-			$query = db_quote('SELECT COUNT(DISTINCT payment.id) FROM ?p AS payment ?p ?p ?p', $this->table, $joins, $condition, $limit);
+			$query = db_quote('SELECT COUNT(DISTINCT payment.id) FROM ?p AS payment ?p ?p GROUP BY payment.id ?p', $this->table, $joins, $condition, $limit);
 			$params['total_items'] = db_get_field($query);
 			$limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
 		}
 
-		$query = db_quote('SELECT ?p FROM ?p AS payment ?p ?p ?p ?p', $fields, $this->table, $joins, $condition, $sorting, $limit);
+		$query = db_quote('SELECT ?p FROM ?p AS payment ?p ?p GROUP BY payment.id ?p ?p', $fields, $this->table, $joins, $condition, $sorting, $limit);
 
 		$items = db_get_array($query);
 

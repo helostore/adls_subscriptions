@@ -25,6 +25,7 @@ if ($mode == 'preview_alert') {
 	exit;
 }
 if ($mode == 'check') {
+    error_reporting(error_reporting() & ~E_DEPRECATED);
 
 	$action = !empty($action) ? $action : '';
 	if ( ! in_array( $action, array( 'expiration', 'alerts' ) ) ) {

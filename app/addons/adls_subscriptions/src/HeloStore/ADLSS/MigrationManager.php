@@ -63,7 +63,6 @@ class MigrationManager extends Manager
             return false;
         }
 
-        $subscriptionManager = SubscriptionManager::instance();
         $subscriptionRepository = SubscriptionRepository::instance();
         $orderId = $order['order_id'];
         list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId);
@@ -73,51 +72,20 @@ class MigrationManager extends Manager
             return false;
         }
 
-//        $order = fn_get_order_info($order['order_id']);
         $order = fn_get_order_info($order['order_id']);
         $this->updateOrderProducts($order);
         $order['prev_status'] = 'O';
-//        $subscriptionManager->processOrder($order);
 
         list($subscriptions, $search) = $subscriptionRepository->findByOrder($orderId, array('extended' => true));
         if (empty($subscriptions)) {
             fn_print_r('Warning: No subscriptions generated for order #' . $orderId);
             return false;
         }
-        $orderDate = Utils::instance()->createDateFromTimestamp($order['timestamp']);
-        $planRepository = PlanRepository::instance();
-        $now = Utils::instance()->getCurrentDate();
-        /** @var Subscription $subscription */
-//        foreach ($subscriptions as $subscription) {
-//            $plan = $planRepository->findOneById($subscription->getPlanId());
-//
-//            $subscription->setCreatedAt($orderDate);
-//            $startDate = clone $orderDate;
-//            $endDate = $now->modify('+1 year');
-//
-//            $elapsedInterval = $now->diff($startDate);
-//            $elapsedCycles = $elapsedInterval->y;
-//
-//            $elapsedCycles = $elapsedCycles / $plan->getCycle();
-//            $paidCycles = $elapsedCycles + 1;
-//
-//
-//            $subscription
-//                ->setCreatedAt($orderDate)
-//                ->payCycle($paidCycles)
-//                ->setStartDate($startDate)
-//                ->setEndDate($endDate);
-//
-//            $subscriptionRepository->update($subscription);
-//        }
 
         // Refresh order data, missing required products may have been automatically added
         $order = fn_get_order_info($order['order_id']);
 
         fn_print_r('Order #' . $orderId . ' generated ' . count($subscriptions) . ' subscriptions for ' . count($order['products']) .' order items');
-//        if (count($subscriptions) != count($order['products'])) {
-//            fn_print_r('Warning: unequal number of subscriptions!!!!!!!!!!!!!!!');
-//        }
         fn_print_r(' - sending alert about the migration..');
 
         $result = $this->alert($order, $subscriptions);

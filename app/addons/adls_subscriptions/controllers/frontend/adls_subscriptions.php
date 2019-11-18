@@ -18,6 +18,10 @@ use Tygh\Registry;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
+if (empty($auth['user_id'])) {
+	return array(CONTROLLER_STATUS_REDIRECT, 'auth.login_form?return_url=' . urlencode(Registry::get('config.current_url')));
+}
+
 if ( $mode === 'add' ) {
 	$subscriptionId = 0;
 	if ( ! empty( $_REQUEST['subscription_id'] ) ) {
@@ -27,8 +31,6 @@ if ( $mode === 'add' ) {
 	if ( empty( $subscriptionId ) ) {
 		return array(CONTROLLER_STATUS_NO_PAGE);
 	}
-
-
 
 	// Fetch needed data
 	$subscriptionRepository = SubscriptionRepository::instance();
@@ -96,8 +98,7 @@ if ( $mode === 'manage' ) {
 		'userId' => $userId,
 		'extended' => true
 	));
-//	aa( $subscriptions, 1 );
-
 	Tygh::$app['view']->assign('subscriptions', $subscriptions);
 	Tygh::$app['view']->assign('search', $search);
+	fn_add_breadcrumb(__('adlss.subscriptions'));
 }

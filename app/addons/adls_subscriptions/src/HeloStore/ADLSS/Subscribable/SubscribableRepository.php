@@ -111,7 +111,7 @@ class SubscribableRepository extends EntityRepository
 		}
 
 		$condition = !empty($condition) ? ' WHERE '. implode(' AND ', $condition) . '' : '';
-		$query = db_quote('SELECT * FROM ?p ?p LIMIT 0,1', $this->table, $condition);
+		$query = db_quote('SELECT * FROM ?p ?p GROUP BY id LIMIT 0,1', $this->table, $condition);
 
 		$items = db_get_array($query);
 		if (empty($items)) {
@@ -180,6 +180,7 @@ class SubscribableRepository extends EntityRepository
             WHERE 
                 (po.product_id = ?i OR gpo.product_id = ?i)
                 AND sl.id IS NOT NULL
+            GROUP BY po.option_id
             '
             , $productId
             , $this->getTable()

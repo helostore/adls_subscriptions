@@ -332,7 +332,6 @@ class SubscriptionManager extends Manager
     public function begin(Subscription $subscription, $initialPaidPeriod = null)
     {
         $planId = $subscription->getPlanId();
-        $subscriptionRepository = SubscriptionRepository::instance();
         $planRepository = PlanRepository::instance();
         $plan = $planRepository->findOneById($planId);
         $utils = Utils::instance();
@@ -348,7 +347,7 @@ class SubscriptionManager extends Manager
         }
         $subscription->activate();
 
-        return $subscriptionRepository->update($subscription);
+        return $this->repository->update($subscription);
     }
 
     /**
@@ -359,10 +358,7 @@ class SubscriptionManager extends Manager
      */
     public function resume(Subscription $subscription)
     {
-        $subscription->activate();
-        $result = $this->repository->update($subscription);
-
-        return $result;
+	    return $this->begin( $subscription );
     }
 
     /**
